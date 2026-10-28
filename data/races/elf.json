@@ -1,0 +1,2 @@
+{"id": "elf", "name": "Elfe", "speed": 30, "ability_bonuses": {"dex": 2, "int": 1},
+ "traits": [{"id": "darkvision", "name": "Vision dans le noir"}, {"id": "fey_ancestry", "name": "Ascendance féerique", "save_advantage_vs": ["charmed"], "immunities_conditions": ["sleep"]}]}

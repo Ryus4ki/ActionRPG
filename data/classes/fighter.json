@@ -1,0 +1,26 @@
+{
+  "id": "fighter",
+  "name": "Guerrier",
+  "hit_die": 10,
+  "primary_ability": "str",
+  "saving_throws": ["str", "con"],
+  "armor_proficiencies": ["light", "medium", "heavy", "shield"],
+  "weapon_proficiencies": ["simple", "martial"],
+  "starting_equipment": ["longsword", "shield", "chain_mail", "potion_healing"],
+  "default_abilities": {"str": 16, "dex": 12, "con": 14, "int": 8, "wis": 10, "cha": 10},
+  "features_by_level": {
+    "1": ["second_wind", "fighting_style_defense"],
+    "2": ["action_surge"],
+    "3": ["improved_critical"],
+    "4": ["ability_score_improvement"],
+    "5": ["extra_attack"]
+  },
+  "features": {
+    "second_wind":            {"name": "Second souffle",       "type": "self_heal", "heal": "1d10", "add_level": true, "cooldown": 60.0},
+    "fighting_style_defense": {"name": "Style : Défense",      "type": "passive",   "ac_bonus_if_armored": 1},
+    "action_surge":           {"name": "Fougue",               "type": "buff",      "effect": "reset_cooldowns", "cooldown": 90.0},
+    "improved_critical":      {"name": "Critique amélioré",    "type": "passive",   "crit_threshold": 19},
+    "ability_score_improvement": {"name": "Amélioration de caractéristique", "type": "asi", "points": 2},
+    "extra_attack":           {"name": "Attaque supplémentaire", "type": "passive", "attack_speed_multiplier": 1.5}
+  }
+}

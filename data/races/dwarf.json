@@ -1,0 +1,2 @@
+{"id": "dwarf", "name": "Nain", "speed": 25, "ability_bonuses": {"con": 2, "str": 1},
+ "traits": [{"id": "darkvision", "name": "Vision dans le noir"}, {"id": "dwarven_resilience", "name": "Résistance naine", "save_advantage_vs": ["poisoned"], "damage_resistances": ["poison"]}]}

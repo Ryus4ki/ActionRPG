@@ -1,0 +1,22 @@
+{
+  "longsword":     {"name": "Épée longue",   "type": "weapon", "category": "martial", "damage": "1d8", "damage_type": "slashing",    "ability": "str", "hands": 1, "attack_speed": 1.0, "model": "sm_sword", "value": 15},
+  "greataxe":      {"name": "Grande hache",  "type": "weapon", "category": "martial", "damage": "1d12","damage_type": "slashing",    "ability": "str", "hands": 2, "attack_speed": 0.8, "model": "sm_axe",   "value": 30},
+  "mace":          {"name": "Masse d'armes", "type": "weapon", "category": "simple",  "damage": "1d6", "damage_type": "bludgeoning", "ability": "str", "hands": 1, "attack_speed": 1.0, "model": "sm_mace",  "value": 5},
+  "dagger":        {"name": "Dague",         "type": "weapon", "category": "simple",  "damage": "1d4", "damage_type": "piercing",    "ability": "dex", "hands": 1, "attack_speed": 1.4, "model": "sm_dagger","value": 2},
+  "quarterstaff":  {"name": "Bâton",         "type": "weapon", "category": "simple",  "damage": "1d6", "damage_type": "bludgeoning", "ability": "str", "hands": 2, "attack_speed": 1.0, "model": "sm_staff", "value": 1},
+
+  "shield":        {"name": "Bouclier",      "type": "shield", "ac_bonus": 2, "model": "sm_shield", "value": 10},
+  "leather_armor": {"name": "Armure de cuir","type": "armor", "armor_type": "light",  "base_ac": 11, "value": 10},
+  "scale_mail":    {"name": "Écailles",      "type": "armor", "armor_type": "medium", "base_ac": 14, "stealth_disadvantage": true, "value": 50},
+  "chain_mail":    {"name": "Cotte de mailles","type": "armor","armor_type": "heavy", "base_ac": 16, "str_requirement": 13, "stealth_disadvantage": true, "value": 75},
+
+  "potion_healing":         {"name": "Potion de soins",          "type": "consumable", "effect": {"type": "heal", "amount": "2d4+2"},  "stackable": true, "max_stack": 10, "use_time": 1.0, "model": "sm_potion", "tint": "#d03030", "value": 50},
+  "potion_greater_healing": {"name": "Potion de soins supérieurs","type": "consumable","effect": {"type": "heal", "amount": "4d4+4"},  "stackable": true, "max_stack": 10, "use_time": 1.0, "model": "sm_potion", "tint": "#ff5050", "value": 150},
+  "gold":                   {"name": "Pièces d'or", "type": "currency", "stackable": true, "model": "sm_coins"},
+
+  "_rarity_table": {
+    "common":   {"name": "Commun",     "weight": 70, "magic_bonus": 0, "color": "#ffffff"},
+    "uncommon": {"name": "Inhabituel", "weight": 25, "magic_bonus": 1, "color": "#3fbf3f"},
+    "rare":     {"name": "Rare",       "weight": 5,  "magic_bonus": 2, "color": "#3f7fff"}
+  }
+}

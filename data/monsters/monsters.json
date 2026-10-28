@@ -1,0 +1,62 @@
+{
+  "goblin": {
+    "name": "Gobelin", "size": "small", "cr": 0.25, "xp": 50,
+    "abilities": {"str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8},
+    "ac": 15, "hp": "2d6", "hp_fixed": 7, "speed": 30,
+    "attacks": [{"name": "Cimeterre", "bonus": 4, "damage": "1d6+2", "damage_type": "slashing", "reach": 1.5, "cooldown": 1.5}],
+    "traits": ["nimble_escape"],
+    "behavior": {"aggro_range": 12, "flee_below_hp_pct": 0.0, "prefers_group": true},
+    "model": "sk_humanoid", "scale": 0.8, "tint": "#5a8a3c"
+  },
+  "goblin_archer": {
+    "name": "Archer gobelin", "size": "small", "cr": 0.25, "xp": 50,
+    "abilities": {"str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8},
+    "ac": 15, "hp": "2d6", "hp_fixed": 7, "speed": 30,
+    "attacks": [{"name": "Arc court", "bonus": 4, "damage": "1d6+2", "damage_type": "piercing", "range": 24, "projectile_speed": 30, "cooldown": 2.0}],
+    "behavior": {"aggro_range": 20, "keep_distance": 10},
+    "model": "sk_humanoid", "scale": 0.8, "tint": "#4a7a2c"
+  },
+  "skeleton": {
+    "name": "Squelette", "size": "medium", "cr": 0.25, "xp": 50,
+    "abilities": {"str": 10, "dex": 14, "con": 15, "int": 6, "wis": 8, "cha": 5},
+    "ac": 13, "hp": "2d8+4", "hp_fixed": 13, "speed": 30,
+    "attacks": [{"name": "Épée courte", "bonus": 4, "damage": "1d6+2", "damage_type": "piercing", "reach": 1.5, "cooldown": 1.5}],
+    "damage_vulnerabilities": ["bludgeoning"], "damage_immunities": ["poison"],
+    "condition_immunities": ["poisoned", "exhaustion"],
+    "behavior": {"aggro_range": 10},
+    "model": "sk_humanoid", "scale": 1.0, "tint": "#d8d2c0"
+  },
+  "giant_spider": {
+    "name": "Araignée géante", "size": "large", "cr": 1, "xp": 200,
+    "abilities": {"str": 14, "dex": 16, "con": 12, "int": 2, "wis": 11, "cha": 4},
+    "ac": 14, "hp": "4d10+4", "hp_fixed": 26, "speed": 30,
+    "attacks": [
+      {"name": "Morsure", "bonus": 5, "damage": "1d8+3", "damage_type": "piercing", "reach": 1.5, "cooldown": 1.8,
+       "on_hit": {"save_ability": "con", "dc": 11, "extra_damage": "2d8", "extra_damage_type": "poison", "half_on_success": true}},
+      {"name": "Toile", "bonus": 5, "range": 18, "projectile_speed": 20, "cooldown": 8.0, "on_hit": {"condition": "restrained", "duration": 4.0}}
+    ],
+    "behavior": {"aggro_range": 14, "ambush": true},
+    "model": "sk_spider", "scale": 1.0, "tint": "#2b2b2b"
+  },
+  "ogre": {
+    "name": "Ogre", "size": "large", "cr": 2, "xp": 450,
+    "abilities": {"str": 19, "dex": 8, "con": 16, "int": 5, "wis": 7, "cha": 7},
+    "ac": 11, "hp": "7d10+21", "hp_fixed": 59, "speed": 40,
+    "attacks": [{"name": "Massue", "bonus": 6, "damage": "2d8+4", "damage_type": "bludgeoning", "reach": 2.5, "cooldown": 2.5, "windup": 0.8, "knockback": 3.0}],
+    "behavior": {"aggro_range": 12},
+    "model": "sk_humanoid", "scale": 1.9, "tint": "#8a7a5a"
+  },
+  "goblin_boss": {
+    "name": "Chef gobelin", "size": "small", "cr": 1, "xp": 200, "is_boss": true,
+    "abilities": {"str": 10, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 10},
+    "ac": 17, "hp": "6d6", "hp_fixed": 21, "hp_boss_multiplier": 3.0, "speed": 30,
+    "attacks": [{"name": "Cimeterre", "bonus": 4, "damage": "1d6+2", "damage_type": "slashing", "reach": 1.5, "cooldown": 1.2, "multiattack": 2}],
+    "traits": ["redirect_attack"],
+    "phases": [
+      {"hp_pct_below": 1.0, "summon": {"monster": "goblin", "count": 2}},
+      {"hp_pct_below": 0.5, "summon": {"monster": "goblin_archer", "count": 2}, "buff": {"attack_speed_multiplier": 1.3}}
+    ],
+    "behavior": {"aggro_range": 15},
+    "model": "sk_humanoid", "scale": 0.9, "tint": "#7a3a3a"
+  }
+}
