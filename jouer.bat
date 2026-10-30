@@ -22,7 +22,7 @@ if not exist ".git" (
     git checkout -q -B main origin/main
     git reset -q --hard origin/main
 )
-echo [1/2] Recuperation des mises a jour...
+echo [1/3] Recuperation des mises a jour...
 git pull --ff-only
 if errorlevel 1 (
     echo.
@@ -32,7 +32,7 @@ if errorlevel 1 (
 )
 
 :launch
-echo [2/2] Lancement du jeu...
+echo [2/3] Verification de Godot...
 set "EXE="
 if defined GODOT if exist "%GODOT%" set "EXE=%GODOT%"
 if not defined EXE for %%F in ("%~dp0godot*.exe" "%~dp0Godot*.exe") do if not defined EXE set "EXE=%%~fF"
@@ -45,5 +45,19 @@ if not defined EXE (
     pause
     exit /b 1
 )
+REM Import du projet (cache des classes, modeles 3D) : necessaire apres un clone
+REM ou une mise a jour, sinon les scripts ne compilent pas hors de l'editeur.
+set "CUR="
+for /f %%H in ('git rev-parse HEAD 2^>nul') do set "CUR=%%H"
+set "LAST="
+if exist ".godot\last_import.txt" set /p LAST=<.godot\last_import.txt
+if not exist ".godot\global_script_class_cache.cfg" set "LAST="
+if not "%CUR%"=="%LAST%" (
+    echo [2/3] Import du projet ^(premiere fois ou mise a jour, 10-30 s^)...
+    "%EXE%" --headless --path "%~dp0." --import >nul 2>&1
+    if not exist ".godot" mkdir ".godot"
+    >.godot\last_import.txt echo %CUR%
+)
+echo [3/3] Lancement du jeu...
 start "" "%EXE%" --path "%~dp0."
 endlocal
