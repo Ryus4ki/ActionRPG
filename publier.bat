@@ -17,12 +17,12 @@ git add -A
 git commit -m "%MSG%"
 if errorlevel 1 (
     echo.
-    echo  (rien a commiter, ou erreur ci-dessus) - on tente quand meme le push.
+    echo  ^(rien a commiter, ou erreur ci-dessus^) - on tente quand meme le push.
 )
 git push
 if errorlevel 1 (
     echo.
-    echo  !! Le push a echoue (pas de reseau ? identification ?).
+    echo  !! Le push a echoue ^(pas de reseau ? identification ?^).
     pause
     exit /b 1
 )

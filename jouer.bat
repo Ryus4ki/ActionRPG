@@ -9,15 +9,29 @@ REM ============================================================
 setlocal
 cd /d "%~dp0"
 
+where git >nul 2>&1 || (
+    echo  !! Git n'est pas installe : https://git-scm.com/download/win
+    echo     On lance le jeu sans mise a jour.
+    goto :launch
+)
+if not exist ".git" (
+    echo  Ce dossier vient d'un ZIP : on le relie a GitHub pour les mises a jour...
+    git init -q
+    git remote add origin https://github.com/Ryus4ki/ActionRPG.git
+    git fetch -q origin
+    git checkout -q -B main origin/main
+    git reset -q --hard origin/main
+)
 echo [1/2] Recuperation des mises a jour...
 git pull --ff-only
 if errorlevel 1 (
     echo.
-    echo  !! La mise a jour a echoue (pas de reseau, ou Git non installe ?).
+    echo  !! La mise a jour a echoue ^(pas de reseau ?^).
     echo     On lance quand meme la version presente sur ce PC.
     echo.
 )
 
+:launch
 echo [2/2] Lancement du jeu...
 set "EXE="
 if defined GODOT if exist "%GODOT%" set "EXE=%GODOT%"
@@ -25,8 +39,9 @@ if not defined EXE for %%F in ("%~dp0godot*.exe" "%~dp0Godot*.exe") do if not de
 if not defined EXE where godot >nul 2>&1 && set "EXE=godot"
 if not defined EXE (
     echo.
-    echo  !! Godot introuvable. Copie Godot_v4.7-stable_win64.exe dans ce dossier,
-    echo     ou definis la variable GODOT (ex: set GODOT=C:\Outils\Godot\Godot_v4.7-stable_win64.exe).
+    echo  !! Godot introuvable. Copie l'executable Godot 4.7 dans ce dossier
+    echo     ^(un fichier qui commence par godot et finit par .exe^),
+    echo     ou definis la variable d'environnement GODOT vers son chemin.
     pause
     exit /b 1
 )
