@@ -4,6 +4,7 @@ extends Node3D
 
 const PLAYER_SCENE := preload("res://scenes/player.tscn")
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
+const PROJECTILE_SCENE := preload("res://scenes/projectile.tscn")
 
 @export var level_scene: PackedScene = preload("res://scenes/test_arena.tscn")
 
@@ -12,6 +13,8 @@ const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 @onready var enemies_root: Node3D = $Enemies
 @onready var player_spawner: MultiplayerSpawner = $PlayerSpawner
 @onready var enemy_spawner: MultiplayerSpawner = $EnemySpawner
+@onready var projectile_spawner: MultiplayerSpawner = $ProjectileSpawner
+@onready var projectiles_root: Node3D = $Projectiles
 
 var level: Node3D
 var _peers_ready: Dictionary = {}  # peer_id -> true quand le client a chargé la scène
@@ -19,8 +22,10 @@ var _spawned := false
 
 
 func _ready() -> void:
+	add_to_group("game")
 	player_spawner.spawn_function = _spawn_player
 	enemy_spawner.spawn_function = _spawn_enemy
+	projectile_spawner.spawn_function = _spawn_projectile
 	FloatingText.install(self)
 	level = level_scene.instantiate()
 	level_root.add_child(level)
@@ -101,6 +106,57 @@ func _spawn_player(data: Dictionary) -> Node:
 	p.player_name = data.name
 	p.position = data.position
 	return p
+
+
+## Hôte : fait apparaître un projectile de sort chez tout le monde.
+func spawn_projectile(data: Dictionary) -> void:
+	projectile_spawner.spawn(data)
+
+
+func _spawn_projectile(data: Dictionary) -> Node:
+	var p: Projectile = PROJECTILE_SCENE.instantiate()
+	p.caster_path = data.get("caster", NodePath())
+	p.spell_id = data.get("spell_id", "")
+	p.slot_level = data.get("slot_level", 0)
+	p.position = data.get("origin", Vector3.ZERO)
+	p.direction = data.get("direction", Vector3.FORWARD)
+	p.speed = data.get("speed", 25.0)
+	p.max_range = data.get("max_range", 30.0)
+	p.radius = data.get("radius", 0.15)
+	p.color = data.get("color", Color(1, 0.5, 0.1))
+	p.homing = data.get("homing", false)
+	p.target_path = data.get("target", NodePath())
+	p.explode_on_arrival = data.get("explode_on_arrival", false)
+	p.target_point = data.get("target_point", Vector3.ZERO)
+	return p
+
+
+## Effet visuel simple (sphère qui s'étend et s'efface), sur toutes les machines.
+func show_vfx(pos: Vector3, radius: float, color: Color) -> void:
+	_rpc_vfx.rpc(pos, radius, color)
+
+
+@rpc("authority", "call_local", "reliable")
+func _rpc_vfx(pos: Vector3, radius: float, color: Color) -> void:
+	var mi := MeshInstance3D.new()
+	var m := SphereMesh.new()
+	m.radius = 0.3
+	m.height = 0.6
+	mi.mesh = m
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(color, 0.6)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.emission_enabled = true
+	mat.emission = color
+	mat.emission_energy_multiplier = 2.0
+	mi.material_override = mat
+	add_child(mi)
+	mi.global_position = pos
+	var tw := create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(mi, "scale", Vector3.ONE * (radius / 0.3), 0.35).set_ease(Tween.EASE_OUT)
+	tw.tween_property(mat, "albedo_color:a", 0.0, 0.45)
+	tw.chain().tween_callback(mi.queue_free)
 
 
 func _spawn_enemy(data: Dictionary) -> Node:

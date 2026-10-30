@@ -21,4 +21,11 @@ _spawnable_scenes = PackedStringArray("res://scenes/enemy.tscn")
 spawn_path = NodePath("../Enemies")
 spawn_limit = 64
 
+[node name="Projectiles" type="Node3D" parent="."]
+
+[node name="ProjectileSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://scenes/projectile.tscn")
+spawn_path = NodePath("../Projectiles")
+spawn_limit = 128
+
 [node name="HUD" parent="." instance=ExtResource("2_hud")]

@@ -121,6 +121,10 @@ func spell_save_dc(casting_ability: String = "int") -> int:
 	return Rules.spell_save_dc(proficiency(), ability_mod(casting_ability))
 
 
+func spell_attack_bonus(casting_ability: String = "int") -> int:
+	return ability_mod(casting_ability) + proficiency()
+
+
 func max_hp() -> int:
 	if monster_id != "":
 		var m: Dictionary = GameData.monster(monster_id)

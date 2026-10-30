@@ -32,7 +32,14 @@ static func install(parent: Node) -> void:
 			return
 		var pos := target.global_position + Vector3(0, 1.9, 0)
 		if not result.get("hit", false):
-			spawn(parent, pos, "Bloqué" if result.get("blocked", false) else "Raté", Color(0.6, 0.8, 1.0) if result.get("blocked", false) else Color(0.75, 0.75, 0.75))
+			var txt := "Raté"
+			var col := Color(0.75, 0.75, 0.75)
+			if result.get("blocked", false):
+				txt = "Bloqué"
+				col = Color(0.6, 0.8, 1.0)
+			elif result.has("save_success"):
+				txt = "Sauvegarde"
+			spawn(parent, pos, txt, col)
 		else:
 			var is_player_target := target.is_in_group("players")
 			var color := Color(1.0, 0.35, 0.3) if is_player_target else Color(1.0, 0.95, 0.6)

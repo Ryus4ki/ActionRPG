@@ -85,14 +85,15 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -520.0
-offset_top = -80.0
+offset_left = -640.0
+offset_top = -100.0
 offset_right = -16.0
 offset_bottom = -16.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 0.8)
 text = "ZQSD ou flèches : se déplacer   Souris : caméra
-Clic gauche : attaquer   Clic droit (maintenu) : garde au bouclier   Espace : esquiver   Échap : libérer la souris
+Clic gauche : attaquer   Clic droit : garde (guerrier) / sort (magicien)   Molette ou 1-4 : choisir le sort
+Espace : esquiver   E : relever un allié   Échap : libérer la souris
 F1 : invulnérable (debug)   F2 : soin complet (debug)"
 horizontal_alignment = 2

@@ -20,6 +20,8 @@ func _ready() -> void:
 		role = "host"
 	elif "--join" in args:
 		role = "client"
+	elif "--wizard" in args:
+		role = "wizard"
 	_detach.call_deferred()
 
 
@@ -54,6 +56,8 @@ func _run() -> void:
 			await _run_host()
 		"client":
 			await _run_client()
+		"wizard":
+			await _run_wizard()
 		_:
 			await _run_solo()
 
@@ -147,9 +151,9 @@ func _run_client() -> void:
 		var yaw := atan2(-to.x, -to.z)
 		if to.length() > 1.6:
 			# Avancer : input "avant" relatif à la caméra orientée vers la cible.
-			me._rpc_input.rpc_id(1, Vector2(0, -1), yaw, false)
+			me._rpc_input.rpc_id(1, Vector2(0, -1), yaw, 0.0, false)
 		else:
-			me._rpc_input.rpc_id(1, Vector2.ZERO, yaw, false)
+			me._rpc_input.rpc_id(1, Vector2.ZERO, yaw, 0.0, false)
 			if Engine.get_physics_frames() % 10 == 0:
 				me.request_action("attack")
 				attacks += 1
@@ -226,3 +230,104 @@ func _wait_game() -> Node:
 		await get_tree().create_timer(0.1).timeout
 	_fail("la scène de jeu n'a pas été chargée")
 	return null
+
+
+# ---------------------------------------------------------------- solo magicien (sorts)
+
+func _run_wizard() -> void:
+	Net.player_name = "Mage"
+	Net.host(false)
+	Net.set_my_choice("wizard", "elf", true)
+	Net.start_game()
+	var game := await _wait_game()
+	if game == null:
+		return
+	var me: PlayerCharacter = null
+	while _elapsed() < TIMEOUT:
+		me = game.get_node("Players").get_node_or_null("Player_1")
+		if me and game.get_node("Enemies").get_child_count() >= 3:
+			break
+		await get_tree().create_timer(0.1).timeout
+	if me == null:
+		_fail("magicien non spawné")
+		return
+	me.is_local = false
+	me.health.invulnerable = true
+	var book: SpellBook = me.spell_book
+	print("[mage] sorts connus : %s ; emplacements %s ; DD %d ; bonus d'attaque de sort +%d" % [
+		book.known, book.slots, me.stats.spell_save_dc("int"), me.stats.spell_attack_bonus("int")])
+	if book.known.size() < 4:
+		_fail("liste de sorts incomplète")
+		return
+	var enemies := game.get_node("Enemies").get_children()
+	var target: Enemy = enemies[1]  # le gobelin 2 : approche dégagée (pas de pilier sur le trajet)
+	_place_near(me, target)
+	var results := {}
+	for sid in ["fire_bolt", "magic_missile", "burning_hands", "mage_armor", "fireball"]:
+		if sid not in book.known and sid != "fireball":
+			continue
+		if sid == "fireball":
+			# Niveau 5 requis : on donne l'XP, le livre de sorts doit se mettre à jour tout seul.
+			me.stats.add_xp(6500)
+			await get_tree().physics_frame
+			print("[mage] niveau %d, sorts %s, emplacements %s, PV %d/%d" % [me.stats.level, book.known, book.slots, me.health.hp, me.health.max_hp])
+			if "fireball" not in book.known:
+				_fail("boule de feu absente au niveau 5")
+				return
+		book.select(book.known.find(sid))
+		var before := hits_seen
+		var before_hp: int = target.health.hp if is_instance_valid(target) else 0
+		var casts := 0
+		var ac_before := me.stats.armor_class()
+		for i in 60 * 6:
+			await get_tree().physics_frame
+			if not is_instance_valid(target) or target.health.is_dead:
+				break
+			var to := target.global_position - me.global_position
+			me._cam_yaw = atan2(-to.x, -to.z)
+			# Boule de feu : viser le sol à ses pieds ; sinon viser la poitrine.
+			me._cam_pitch = deg_to_rad(-8.0) if sid == "fireball" else 0.0
+			if sid == "burning_hands" and to.length() > 3.5:
+				me._input_dir = Vector2(0, -1)  # avancer au contact
+			else:
+				me._input_dir = Vector2.ZERO
+				if book.can_cast(sid) and me.try_cast():
+					casts += 1
+			if sid == "mage_armor":
+				if me.stats.armor_class() != ac_before:
+					break
+			elif hits_seen - before >= 2 or (casts >= 1 and book.slot_level_for(GameData.spell(sid)) < 0 and i > 90):
+				if hits_seen - before >= 1:
+					break
+		var after_hp: int = target.health.hp if is_instance_valid(target) else 0
+		if sid == "mage_armor":
+			results[sid] = "CA %d → %d" % [ac_before, me.stats.armor_class()]
+		else:
+			results[sid] = "%d lancers, %d résolutions, PV cible %d → %d" % [casts, hits_seen - before, before_hp, after_hp]
+		print("[mage] %s : %s" % [sid, results[sid]])
+		me._input_dir = Vector2.ZERO
+		book.restore_all()
+		# Nouvelle cible vivante si la précédente est morte.
+		if not is_instance_valid(target) or target.health.is_dead:
+			for e in game.get_node("Enemies").get_children():
+				if e.health.is_alive():
+					target = e
+					break
+			if is_instance_valid(target):
+				_place_near(me, target)
+	var fireball_ok: bool = results.has("fireball") and not str(results["fireball"]).begins_with("0 lancers")
+	var ok: bool = hits_seen >= 3 and me.stats.armor_class() == 13 + me.stats.ability_mod("dex") \
+		and me.stats.level == 5 and fireball_ok
+	print("=== NET WIZARD %s === (résolutions totales : %d)" % ["OK" if ok else "ÉCHEC", hits_seen])
+	Net.stop()
+	get_tree().quit(0 if ok else 1)
+
+
+## Place le joueur à 8 m de la cible vers le centre de l'arène, en évitant les piliers de test_arena.
+func _place_near(me: Node3D, target: Node3D) -> void:
+	var tc := -Vector3(target.global_position.x, 0, target.global_position.z).normalized()
+	var pos := target.global_position + tc * 8.0
+	for pillar in [Vector3(5, 0, -5), Vector3(-5, 0, 5), Vector3(6, 0, 6)]:
+		if Vector3(pos.x, 0, pos.z).distance_to(pillar) < 2.0:
+			pos += tc.cross(Vector3.UP) * 2.5
+	me.global_position = Vector3(pos.x, 0.1, pos.z)

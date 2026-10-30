@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://src/entities/player/player_character.gd" id="1_player"]
 [ext_resource type="Script" path="res://src/entities/components/stat_block.gd" id="2_stats"]
 [ext_resource type="Script" path="res://src/entities/components/health.gd" id="3_health"]
+[ext_resource type="Script" path="res://src/entities/components/spell_book.gd" id="4_spells"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.3
@@ -48,6 +49,18 @@ properties/10/replication_mode = 2
 properties/11/path = NodePath("StatBlock:xp")
 properties/11/spawn = true
 properties/11/replication_mode = 2
+properties/12/path = NodePath("SpellBook:known")
+properties/12/spawn = true
+properties/12/replication_mode = 2
+properties/13/path = NodePath("SpellBook:slots")
+properties/13/spawn = true
+properties/13/replication_mode = 2
+properties/14/path = NodePath("SpellBook:max_slots")
+properties/14/spawn = true
+properties/14/replication_mode = 2
+properties/15/path = NodePath("SpellBook:selected")
+properties/15/spawn = true
+properties/15/replication_mode = 2
 
 [node name="Player" type="CharacterBody3D"]
 collision_layer = 2
@@ -65,6 +78,9 @@ script = ExtResource("2_stats")
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("3_health")
+
+[node name="SpellBook" type="Node" parent="."]
+script = ExtResource("4_spells")
 
 [node name="CameraPivot" type="Node3D" parent="."]
 top_level = true

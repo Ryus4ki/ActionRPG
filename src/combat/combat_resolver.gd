@@ -63,7 +63,7 @@ static func weapon_attack(attacker: Node3D, target: Node3D, attack: Dictionary,
 
 ## Dégâts directs avec jet de sauvegarde (sorts de zone, poison…).
 static func save_damage(attacker: Node3D, target: Node3D, dice_expr: String, damage_type: String,
-		save_ability: String, dc: int, half_on_success: bool = true) -> Dictionary:
+		save_ability: String, dc: int, half_on_success: bool = true, attack_name: String = "") -> Dictionary:
 	var t_stats := _stats(target)
 	var t_health := _health(target)
 	if t_stats == null or t_health == null or not t_health.is_alive():
@@ -75,11 +75,31 @@ static func save_damage(attacker: Node3D, target: Node3D, dice_expr: String, dam
 	dealt = CombatRules.apply_defenses(dealt, dtype,
 		t_stats.damage_resistances, t_stats.damage_vulnerabilities, t_stats.damage_immunities)
 	var result := {
-		"attacker": attacker, "target": target, "hit": dealt > 0, "crit": false, "fumble": false,
+		"attacker": attacker, "target": target, "attack_name": attack_name, "hit": dealt > 0, "crit": false, "fumble": false,
 		"save_d20": save.d20, "save_total": save.total, "save_success": save.success, "dc": dc,
 		"damage": dealt, "damage_type": dtype,
 	}
 	if dealt > 0:
 		t_health.take_damage(dealt, dtype, false, attacker)
+	EventBus.hit_resolved.emit(target, result)
+	return result
+
+
+## Dégâts automatiques sans jet (projectile magique) : dés + résistances.
+static func direct_damage(attacker: Node3D, target: Node3D, dice_expr: String, damage_type: String,
+		attack_name: String = "") -> Dictionary:
+	var t_stats := _stats(target)
+	var t_health := _health(target)
+	if t_stats == null or t_health == null or not t_health.is_alive():
+		return {}
+	var dtype := StatBlock.damage_type_from_string(damage_type)
+	var raw := CombatRules.roll_damage(dice_expr, 0, false, rng)
+	var dealt := CombatRules.apply_defenses(raw, dtype,
+		t_stats.damage_resistances, t_stats.damage_vulnerabilities, t_stats.damage_immunities)
+	var result := {
+		"attacker": attacker, "target": target, "attack_name": attack_name, "hit": true, "crit": false,
+		"fumble": false, "auto_hit": true, "damage": dealt, "damage_type": dtype,
+	}
+	t_health.take_damage(dealt, dtype, false, attacker)
 	EventBus.hit_resolved.emit(target, result)
 	return result

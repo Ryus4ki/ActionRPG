@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/combat/projectile.gd" id="1_proj"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_1"]
+radius = 0.15
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_sync"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:color")
+properties/1/spawn = true
+properties/1/replication_mode = 0
+properties/2/path = NodePath(".:radius")
+properties/2/spawn = true
+properties/2/replication_mode = 0
+
+[node name="Projectile" type="Area3D"]
+collision_layer = 0
+collision_mask = 5
+monitoring = true
+script = ExtResource("1_proj")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_1")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+
+[node name="Light" type="OmniLight3D" parent="."]
+light_energy = 1.5
+omni_range = 4.0
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_sync")

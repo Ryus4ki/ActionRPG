@@ -149,8 +149,8 @@ Convention : un seul `.blend` source, export par collection, nommage `sm_*` / `s
 - [ ] Test sur 2 PC réels (pas seulement 2 instances locales). Test automatisé : `tests/net_smoke.tscn` (hôte + client headless).
 
 ### M3 — Vraie boucle RPG (3-4 semaines)
-- [ ] Magicien : 3 sorts avec projectiles/zones, emplacements, repos au feu de camp.
-- [ ] XP, montée de niveau, feuille de personnage.
+- [x] Magicien : 6 sorts du SRD (trait de feu, projectile magique, mains brûlantes, armure du mage, rayon ardent, boule de feu), emplacements, montée de niveau → nouveaux sorts et PV. Repos au feu de camp : M4.
+- [x] XP et montée de niveau (PV, maîtrise, sorts). Feuille de personnage : à faire.
 - [ ] Inventaire, équipement, loot qui tombe des monstres et des coffres (partagé, premier arrivé).
 - [ ] 4 types de monstres, 1 boss avec 2 phases.
 

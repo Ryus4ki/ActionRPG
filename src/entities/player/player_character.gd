@@ -13,6 +13,8 @@ const DODGE_DURATION := 0.35
 const DODGE_SPEED := 9.0
 const CAMERA_OFFSET := Vector3(0, 1.5, 0)
 const REVIVE_RANGE := 2.5
+const CAST_RELEASE_DELAY := 0.47   # frame 14 / 30 fps de l'animation "cast"
+const CAST_HEIGHT := 1.25  # hauteur de départ des sorts (poitrine)
 ## Seul (aucun coéquipier vivant) : un joueur à terre se relève après ce délai.
 const SOLO_REVIVE_DELAY := 5.0
 ## Transformations d'attache calculées depuis les poses réelles (tests/calc_attach.gd) :
@@ -30,6 +32,7 @@ static var SHIELD_STRAP := Transform3D(Basis.from_euler(Vector3(deg_to_rad(40.44
 @onready var spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
 @onready var camera: Camera3D = $CameraPivot/SpringArm3D/Camera3D
 @onready var melee_area: Area3D = $MeleeArea
+@onready var spell_book: SpellBook = $SpellBook
 
 var mouse_sensitivity := 0.0025
 var pitch_min := deg_to_rad(-60)
@@ -42,6 +45,7 @@ var is_local := true  # le joueur contrôlé sur cette machine (caméra + souris
 # Entrées courantes (sur l'hôte : reçues du client ou lues localement)
 var _input_dir := Vector2.ZERO
 var _cam_yaw := 0.0
+var _cam_pitch := 0.0
 var _want_block := false
 var _attack_cooldown := 0.0
 var _dodge_time := 0.0
@@ -95,6 +99,13 @@ func _setup_character() -> void:
 				attach_to_bone("forearm.L", "res://assets/models/sm_shield.glb", SHIELD_STRAP)
 	if weapon.is_empty():
 		weapon = {"name": "Poings", "damage": "1d1", "damage_type": "bludgeoning", "ability": "str"}
+	if cls.has("spellcasting_ability"):
+		spell_book.setup(cls, stats.level)
+		stats.level_changed.connect(func(lvl: int):
+			if is_server():
+				spell_book.refresh_for_level(cls, lvl, true)
+				health.max_hp = stats.max_hp()
+				health.heal(health.max_hp))
 	if is_server():
 		health.setup(stats.max_hp())
 
@@ -109,6 +120,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pivot.rotation.x = clampf(camera_pivot.rotation.x - event.relative.y * mouse_sensitivity, pitch_min, pitch_max)
 	elif event.is_action_pressed("attack"):
 		request_action("attack")
+	elif event.is_action_pressed("secondary") and spell_book.is_caster():
+		request_action("cast")
+	elif event is InputEventMouseButton and event.pressed and spell_book.is_caster() \
+			and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		request_action("spell_next" if event.button_index == MOUSE_BUTTON_WHEEL_DOWN else "spell_prev")
+	elif event is InputEventKey and event.pressed and not event.echo and spell_book.is_caster() \
+			and event.physical_keycode >= KEY_1 and event.physical_keycode <= KEY_9:
+		request_action("spell_%d" % (event.physical_keycode - KEY_1))
 	elif event.is_action_pressed("dodge"):
 		request_action("dodge")
 	elif event.is_action_pressed("interact"):
@@ -138,10 +157,11 @@ func _rpc_action(action: String) -> void:
 
 
 @rpc("any_peer", "unreliable_ordered")
-func _rpc_input(dir: Vector2, cam_yaw: float, block: bool) -> void:
+func _rpc_input(dir: Vector2, cam_yaw: float, cam_pitch: float, block: bool) -> void:
 	if is_server() and multiplayer.get_remote_sender_id() == peer_id:
 		_input_dir = dir.limit_length(1.0)
 		_cam_yaw = cam_yaw
+		_cam_pitch = cam_pitch
 		_want_block = block
 
 
@@ -158,19 +178,31 @@ func _do_action(action: String) -> void:
 			print("[debug] invulnérabilité de %s : %s" % [stats.display_name, health.invulnerable])
 		"debug_heal":
 			health.heal(health.max_hp)
+			spell_book.restore_all()
+		"cast":
+			try_cast()
+		"spell_next":
+			spell_book.select_next(1)
+		"spell_prev":
+			spell_book.select_next(-1)
+		_:
+			if action.begins_with("spell_"):
+				spell_book.select(int(action.trim_prefix("spell_")))
 
 
 func _gather_local_input() -> void:
 	var dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var yaw := camera_pivot.global_rotation.y
+	var pitch := camera_pivot.rotation.x
 	var block := has_shield and Input.is_action_pressed("secondary")
 	if is_server():
 		_input_dir = dir
 		_cam_yaw = yaw
+		_cam_pitch = pitch
 		_want_block = block
 	else:
-		# Envoi à chaque tick physique (léger : 2 floats + 1 bool, non fiable).
-		_rpc_input.rpc_id(1, dir, yaw, block)
+		# Envoi à chaque tick physique (léger : 3 floats + 1 bool, non fiable).
+		_rpc_input.rpc_id(1, dir, yaw, pitch, block)
 
 
 # ------------------------------------------------------------------ simulation (hôte)
@@ -243,6 +275,26 @@ func _camera_relative_direction(input: Vector2) -> Vector3:
 ## Direction horizontale vers laquelle regarde la caméra de ce joueur (connue de l'hôte).
 func camera_forward() -> Vector3:
 	return Vector3(-sin(_cam_yaw), 0, -cos(_cam_yaw))
+
+
+## Direction de visée complète (lacet + tangage de la caméra).
+func aim_direction() -> Vector3:
+	return (Basis.from_euler(Vector3(_cam_pitch, _cam_yaw, 0)) * Vector3.FORWARD).normalized()
+
+
+func try_cast() -> bool:
+	if is_busy() or is_blocking or not health.is_alive() or not spell_book.is_caster():
+		return false
+	var spell_id := spell_book.selected_spell_id()
+	if not spell_book.can_cast(spell_id):
+		return false
+	rotation.y = atan2(-camera_forward().x, -camera_forward().z)
+	play_anim("cast", 0.05, true)
+	get_tree().create_timer(CAST_RELEASE_DELAY).timeout.connect(func():
+		if is_instance_valid(self) and health.is_alive():
+			var eye := global_position + Vector3(0, CAST_HEIGHT, 0)
+			SpellCaster.cast(self, spell_id, eye, aim_direction()))
+	return true
 
 
 func try_attack() -> bool:

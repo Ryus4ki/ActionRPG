@@ -10,6 +10,9 @@ echo.
 echo --- Test solo (arene, combat) ---
 "%GODOT%" --headless --path . res://tests/net_smoke.tscn 2>nul | findstr /C:"[solo]" /C:"==="
 echo.
+echo --- Test magicien (sorts, montee de niveau) ---
+"%GODOT%" --headless --path . res://tests/net_smoke.tscn -- --wizard 2>nul | findstr /C:"[mage]" /C:"==="
+echo.
 echo --- Test reseau : hote + client sur 127.0.0.1 ---
 start "hote" /B "%GODOT%" --headless --path . res://tests/net_smoke.tscn -- --host > tests\_host.log 2>&1
 timeout /t 2 >nul
