@@ -2,3 +2,5 @@
 .godot/
 /android/
 /_to_delete/
+*.exe
+*.pck

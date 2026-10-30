@@ -12,6 +12,7 @@ const ATTACK_DURATION := 0.8
 const DODGE_DURATION := 0.35
 const DODGE_SPEED := 9.0
 const CAMERA_OFFSET := Vector3(0, 1.5, 0)
+const STICK_LOOK_SPEED := 2.6  # rad/s à fond de stick
 const REVIVE_RANGE := 2.5
 const CAST_RELEASE_DELAY := 0.47   # frame 14 / 30 fps de l'animation "cast"
 const CAST_HEIGHT := 1.25  # hauteur de départ des sorts (poitrine)
@@ -74,8 +75,13 @@ func _ready() -> void:
 		EventBus.local_player_ready.emit(self)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	camera_pivot.global_position = global_position + CAMERA_OFFSET
+	if is_local:
+		var look := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+		if look.length_squared() > 0.0:
+			camera_pivot.rotation.y -= look.x * STICK_LOOK_SPEED * delta
+			camera_pivot.rotation.x = clampf(camera_pivot.rotation.x - look.y * STICK_LOOK_SPEED * 0.6 * delta, pitch_min, pitch_max)
 
 
 func _setup_character() -> void:
@@ -118,20 +124,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		camera_pivot.rotation.y -= event.relative.x * mouse_sensitivity
 		camera_pivot.rotation.x = clampf(camera_pivot.rotation.x - event.relative.y * mouse_sensitivity, pitch_min, pitch_max)
-	elif event.is_action_pressed("attack"):
-		request_action("attack")
-	elif event.is_action_pressed("secondary") and spell_book.is_caster():
-		request_action("cast")
 	elif event is InputEventMouseButton and event.pressed and spell_book.is_caster() \
 			and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 		request_action("spell_next" if event.button_index == MOUSE_BUTTON_WHEEL_DOWN else "spell_prev")
 	elif event is InputEventKey and event.pressed and not event.echo and spell_book.is_caster() \
 			and event.physical_keycode >= KEY_1 and event.physical_keycode <= KEY_9:
 		request_action("spell_%d" % (event.physical_keycode - KEY_1))
-	elif event.is_action_pressed("dodge"):
-		request_action("dodge")
-	elif event.is_action_pressed("interact"):
-		request_action("interact")
+	elif event.is_action_pressed("menu"):
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
 	elif event.is_action_pressed("debug_god"):
 		request_action("debug_god")
 	elif event.is_action_pressed("debug_heal"):
@@ -191,6 +191,21 @@ func _do_action(action: String) -> void:
 
 
 func _gather_local_input() -> void:
+	# Actions ponctuelles sondées ici : fonctionne pareil pour clavier, souris et manette
+	# (une gâchette analogique ne déclenche qu'une fois par pression).
+	if Input.is_action_just_pressed("attack"):
+		request_action("attack")
+	if Input.is_action_just_pressed("secondary") and spell_book.is_caster():
+		request_action("cast")
+	if Input.is_action_just_pressed("dodge"):
+		request_action("dodge")
+	if Input.is_action_just_pressed("interact"):
+		request_action("interact")
+	if spell_book.is_caster():
+		if Input.is_action_just_pressed("spell_prev"):
+			request_action("spell_prev")
+		if Input.is_action_just_pressed("spell_next"):
+			request_action("spell_next")
 	var dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var yaw := camera_pivot.global_rotation.y
 	var pitch := camera_pivot.rotation.x
