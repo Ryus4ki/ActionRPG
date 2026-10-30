@@ -18,10 +18,14 @@ var xp := 0
 var hit_die := 8
 var speed := 30  # pieds par round (SRD) → converti en m/s par la créature
 
-var base_ac := 10
+var base_ac := 10          # (monstres / compat) base sans armure
+var armor_base_ac := 0     # CA de base de l'armure portée (0 = aucune armure)
 var armor_type := "none"
 var shield_bonus := 0
-var ac_bonus := 0          # bonus divers (style Défense, sorts…)
+var equipment_ac_bonus := 0  # bonus magique de l'armure / du bouclier
+var ac_bonus := 0          # bonus divers (sorts, buffs)
+var mage_armor := false    # Armure du mage : base 13 si aucune armure
+var defense_style := false # Style de combat Défense : +1 CA si armure portée
 var fixed_ac := -1         # monstres : CA fixe du bestiaire
 
 var save_proficiencies: Array = []
@@ -57,8 +61,7 @@ func setup_from_class(p_class_id: String, p_race_id: String) -> void:
 	# Style de combat Défense : +1 CA si armure portée (appliqué par l'équipement en M3 ;
 	# pour l'instant on l'applique si la classe a la capacité au niveau 1).
 	var feats: Array = cls.get("features_by_level", {}).get("1", [])
-	if "fighting_style_defense" in feats:
-		ac_bonus += 1
+	defense_style = "fighting_style_defense" in feats
 
 
 func setup_from_monster(p_monster_id: String) -> void:
@@ -78,14 +81,14 @@ func setup_from_monster(p_monster_id: String) -> void:
 		damage_immunities.append(damage_type_from_string(i))
 
 
-## Équipe une armure / un bouclier (dictionnaires de items.json).
-func equip_armor(item: Dictionary) -> void:
-	base_ac = item.get("base_ac", 10)
-	armor_type = item.get("armor_type", "none")
+## Applique l'équipement (dictionnaires de items.json ; null = rien).
+func set_armor(item: Dictionary) -> void:
+	armor_base_ac = int(item.get("base_ac", 0)) if not item.is_empty() else 0
+	armor_type = item.get("armor_type", "none") if not item.is_empty() else "none"
 
 
-func equip_shield(item: Dictionary) -> void:
-	shield_bonus = item.get("ac_bonus", 0)
+func set_shield(item: Dictionary) -> void:
+	shield_bonus = int(item.get("ac_bonus", 0)) if not item.is_empty() else 0
 
 
 # ---------------------------------------------------------------- calculs
@@ -101,7 +104,16 @@ func proficiency() -> int:
 func armor_class() -> int:
 	if fixed_ac >= 0:
 		return fixed_ac + ac_bonus
-	return Rules.armor_class(base_ac, ability_mod("dex"), armor_type, shield_bonus) + ac_bonus
+	var base := armor_base_ac
+	var atype := armor_type
+	if base <= 0:
+		base = 13 if mage_armor else base_ac
+		atype = "none"
+	var ac := Rules.armor_class(base, ability_mod("dex"), atype, shield_bonus)
+	ac += equipment_ac_bonus + ac_bonus
+	if defense_style and armor_base_ac > 0:
+		ac += 1
+	return ac
 
 
 func attack_bonus(ability: String = "str", magic_bonus: int = 0) -> int:

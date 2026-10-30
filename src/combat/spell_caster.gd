@@ -162,9 +162,7 @@ static func _apply_buff(caster: PlayerCharacter, spell: Dictionary) -> void:
 	var effect: Dictionary = spell.get("effect", {})
 	match effect.get("type", ""):
 		"set_base_ac":
-			if effect.get("requires_no_armor", false) and caster.stats.armor_type != "none":
-				return
-			caster.stats.base_ac = maxi(caster.stats.base_ac, int(effect.get("value", 13)))
+			caster.stats.mage_armor = true  # n'agit que sans armure (voir StatBlock.armor_class)
 
 
 ## Ennemis vivants à portée dont la direction est dans le cône (dot ≥ min_dot), triés par distance.

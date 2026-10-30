@@ -207,16 +207,62 @@ func _run_solo() -> void:
 				if d < nd:
 					nd = d
 					nearest = e
-		if nearest and nd < 2.0:
+		if nearest and nd > 6.0:
+			# Ennemi vivant hors de portée d'aggro : on s'en rapproche (téléportation de test).
+			var tc2 := -Vector3(nearest.global_position.x, 0, nearest.global_position.z).normalized()
+			me.global_position = nearest.global_position + tc2 * 4.0 + Vector3(0, 0.1, 0)
+		elif nearest and nd < 2.0:
 			var to := nearest.global_position - me.global_position
 			me._cam_yaw = atan2(-to.x, -to.z)
 			if me.try_attack():
 				attacks += 1
 		if hits_on_enemies >= 3 and hits_on_me >= 1:
 			break
+		if nearest == null:
+			break
 	print("[solo] attaques=%d résolutions=%d touches ennemis=%d touches sur moi=%d PV %d/%d" % [
 		attacks, hits_seen, hits_on_enemies, hits_on_me, me.health.hp, me.health.max_hp])
-	var ok := attacks > 0 and hits_on_enemies > 0
+	# ---- Butin : tuer le reste, ramasser ce qui tombe, ouvrir le coffre, utiliser une potion.
+	me.health.invulnerable = true
+	for e in game.get_node("Enemies").get_children():
+		if e.health.is_alive():
+			e.health.take_damage(999, 0, false, me)
+	await get_tree().physics_frame
+	var loot_root := game.get_node("Loot")
+	var drops := loot_root.get_child_count()
+	var chest: Chest = null
+	for c in get_tree().get_nodes_in_group("chests"):
+		chest = c
+	if chest:
+		me.global_position = chest.global_position + Vector3(0, 0.1, 1.5)
+		while _elapsed() < TIMEOUT and (me.is_busy() or not me.try_interact()):
+			await get_tree().physics_frame
+		await get_tree().physics_frame
+	var drops_after_chest := loot_root.get_child_count()
+	var gold_before: int = me.inventory.gold
+	var picked := 0
+	for d in loot_root.get_children():
+		if not is_instance_valid(d):
+			continue
+		me.global_position = d.global_position + Vector3(0, 0.1, 0)
+		for _i in 3:
+			await get_tree().physics_frame
+		picked += 1
+	var inv: Inventory = me.inventory
+	for i in inv.items.size():
+		if Inventory.item_data(inv.items[i]).get("type", "") == "weapon":
+			inv.equip(i)
+			break
+	me.health.invulnerable = false
+	me.health.hp = me.health.max_hp
+	me.health.take_damage(5, 0, false, null)
+	var hp_before: int = me.health.hp
+	var potion_ok := me.use_potion()
+	print("[solo] butin : %d objets tombés des monstres, %d après le coffre (ouvert=%s), ramassés=%d, or %d→%d, sac=%d, arme=%s, potion=%s PV %d→%d" % [
+		drops, drops_after_chest, chest.opened if chest else "?", picked, gold_before, inv.gold, inv.items.size(), me.weapon.get("name", ""), potion_ok, hp_before, me.health.hp])
+	var chest_ok: bool = chest == null or chest.opened
+	var loot_ok: bool = drops > 0 and chest_ok and inv.gold > gold_before and loot_root.get_child_count() == 0
+	var ok: bool = attacks > 0 and hits_on_enemies > 0 and loot_ok and potion_ok
 	print("=== NET SOLO %s ===" % ("OK" if ok else "ÉCHEC"))
 	Net.stop()
 	get_tree().quit(0 if ok else 1)

@@ -174,5 +174,9 @@ func _on_died() -> void:
 		for p in get_tree().get_nodes_in_group("players"):
 			if p is Creature:
 				p.stats.add_xp(stats.xp_value)
+	# Butin au sol.
+	var game := get_tree().get_first_node_in_group("game")
+	if game:
+		Loot.drop_for_monster(game, monster_id, global_position)
 	# Le corps disparaît après quelques secondes.
 	get_tree().create_timer(8.0).timeout.connect(queue_free)

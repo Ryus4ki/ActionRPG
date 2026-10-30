@@ -23,10 +23,10 @@
 
 | Sujet | Décision | Pourquoi |
 |---|---|---|
-| Moteur | Godot 4.7 (Forward+, physique Jolt) | Gratuit, GDScript ≈ Python, multijoueur haut niveau intégré |
+| Moteur | Godot 4.x (dernière stable) | Gratuit, GDScript ≈ Python, multijoueur haut niveau intégré |
 | Langage | GDScript (typage statique activé) | Lisibilité, perf correcte, autocomplétion |
 | Rendu | Forward+ | PC cible RTX 4060 Ti : largement suffisant |
-| Réseau | ENet via `MultiplayerAPI`, modèle **hôte = serveur autoritaire** (listen server) — *validé* | Un joueur héberge, l'autre rejoint. Simple, robuste, pas de serveur dédié |
+| Réseau | ENet via `MultiplayerAPI`, modèle **hôte = serveur autoritaire** (listen server) | Un joueur héberge, l'autre rejoint. Simple, robuste, pas de serveur dédié |
 | Découverte LAN | Broadcast UDP (`PacketPeerUDP`) sur un port fixe | « Parties trouvées » automatiquement dans le menu |
 | Synchro | `MultiplayerSynchronizer` pour position/état, `@rpc` pour les actions discrètes | Approche recommandée Godot 4 |
 | Règles D&D | SRD 5.1 (CC-BY-4.0) simplifié | Licence libre, contenu suffisant (classes, sorts, monstres) |
@@ -64,7 +64,7 @@ Principe : **une règle = une fonction pure** dans `rules/`, testable sans scèn
 - **Races** : Humain, Elfe, Nain (bonus de caracs + un trait).
 - **Monstres** (SRD) : Gobelin, Squelette, Araignée géante, Ogre ; boss : Chef gobelin ou Ogre élite.
 - **Progression** : niveaux 1→5, XP selon table SRD, points de vie + nouveau sort/capacité par niveau.
-- **Loot** : armes (épée longue, hache, bâton), armures (cuir, mailles), potions de soin, 3 raretés (commun / inhabituel / rare → +1/+2 magique). Loot **partagé, premier arrivé** (validé).
+- **Loot** : armes (épée longue, hache, bâton), armures (cuir, mailles), potions de soin, 3 raretés (commun / inhabituel / rare → +1/+2 magique).
 
 ---
 
@@ -130,29 +130,31 @@ Convention : un seul `.blend` source, export par collection, nommage `sm_*` / `s
 ## 6. Jalons
 
 ### M0 — Fondations (1-2 semaines)
-- [x] Projet Godot créé (4.7, Forward+, Jolt), Git initialisé, structure de dossiers.
-- [x] Module `rules/` : dés, modificateurs, jet d'attaque, sauvegarde, dégâts — **avec tests unitaires** (`tools\run_tests.bat`, 17 tests).
-- [x] Tables JSON : 2 classes, 3 races, 6 sorts, 6 monstres, 12 objets + autoload `GameData` avec validation croisée.
-- [x] Placeholders v1 générés (`tools/gen_placeholders.py`, 20 .glb dans `assets/models/`) — import Godot à vérifier à l'ouverture.
+- [ ] Projet Godot créé, Git initialisé, structure de dossiers.
+- [ ] Module `rules/` : dés, modificateurs, jet d'attaque, sauvegarde, dégâts — **avec tests unitaires**.
+- [ ] Tables JSON : 2 classes, 3 races, 6 sorts, 4 monstres, 12 objets.
+- [ ] Placeholders v1 générés et importés.
 
-### M1 — Un joueur dans une arène (2-3 semaines) — fait le 2026-10-28, test de fumée headless `tests/smoke_arena.tscn`
-- [x] Contrôleur TPS : déplacement relatif caméra, SpringArm, esquive (Espace). Verrouillage de cible : reporté.
-- [x] Attaque de mêlée (zone devant le joueur, impact à 0,4 s), `CombatResolver` → `rules/`, chiffres flottants (`FloatingText`).
-- [x] Ennemis génériques depuis `monsters.json` (`Enemy`) : aggro, poursuite `NavigationAgent3D` (navmesh cuit au runtime), attaque, mort, XP. Arène : 2 gobelins + 1 squelette.
-- [x] HUD : nom/niveau/CA, barre de PV, XP, journal de combat avec les jets. Emplacements de sorts : M3.
+### M1 — Un joueur dans une arène (2-3 semaines)
+- [ ] Contrôleur TPS : déplacement, caméra, verrouillage de cible optionnel.
+- [ ] Attaque de mêlée avec hitbox, dégâts via `rules/`, chiffres flottants.
+- [ ] Un ennemi (gobelin) : patrouille, poursuite, attaque, mort, `NavigationAgent3D`.
+- [ ] HUD : PV, emplacements de sorts, cooldowns.
 
-### M2 — Coop LAN (2-3 semaines) — code fait le 2026-10-30, reste le test sur 2 PC
-- [x] Menu Héberger / Rejoindre / Solo, découverte UDP (broadcast port 7778, jeu port 7777), saisie d'IP.
-- [x] Lobby avec choix classe/race et état prêt ; spawn via `MultiplayerSpawner` sur les `PlayerSpawns` du niveau.
-- [x] Réplication (`MultiplayerSynchronizer`) : position, rotation, animation, garde, PV, états, XP/niveau ; entrées client → hôte par RPC ; événements de combat hôte → clients.
-- [x] Relever un coéquipier à terre (touche E, 2,5 m). Relevé automatique seulement si aucun allié vivant.
-- [ ] Test sur 2 PC réels (pas seulement 2 instances locales). Test automatisé : `tests/net_smoke.tscn` (hôte + client headless).
+### M2 — Coop LAN (2-3 semaines)
+- [ ] Menu Héberger / Rejoindre, découverte UDP.
+- [ ] Lobby avec choix de classe, spawn des 2 joueurs.
+- [ ] Réplication mouvement, attaques, PV, ennemis.
+- [ ] Relever un coéquipier à terre.
+- [ ] Test sur 2 PC réels (pas seulement 2 instances locales).
 
 ### M3 — Vraie boucle RPG (3-4 semaines)
-- [x] Magicien : 6 sorts du SRD (trait de feu, projectile magique, mains brûlantes, armure du mage, rayon ardent, boule de feu), emplacements, montée de niveau → nouveaux sorts et PV. Repos au feu de camp : M4.
-- [x] XP et montée de niveau (PV, maîtrise, sorts). Feuille de personnage : à faire.
-- [ ] Inventaire, équipement, loot qui tombe des monstres et des coffres (partagé, premier arrivé).
-- [ ] 4 types de monstres, 1 boss avec 2 phases.
+- [x] Magicien : 6 sorts (projectiles, zones, buff), emplacements par niveau, XP et montée de niveau. *(M3a)*
+- [x] Inventaire (touche I / croix gauche), équipement avec bonus magiques (+1…), potions (F / Triangle). *(M3b)*
+- [x] Loot qui tombe des monstres (tables par rareté) et coffre (E), partagé premier arrivé. *(M3b)*
+- [ ] Repos au feu de camp (restaure PV et emplacements) — reporté en M4 avec le donjon.
+- [ ] Feuille de personnage détaillée (écran).
+- [ ] 4 types de monstres, 1 boss avec 2 phases. *(M3c — suivant)*
 
 ### M4 — Donjon 01 (3-4 semaines)
 - [ ] Niveau complet (~20 min) : 8-10 salles, 2 pièges, 1 énigme simple (leviers), checkpoints.

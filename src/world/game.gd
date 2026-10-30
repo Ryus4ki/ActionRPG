@@ -5,6 +5,7 @@ extends Node3D
 const PLAYER_SCENE := preload("res://scenes/player.tscn")
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 const PROJECTILE_SCENE := preload("res://scenes/projectile.tscn")
+const LOOT_SCENE := preload("res://scenes/loot_drop.tscn")
 
 @export var level_scene: PackedScene = preload("res://scenes/test_arena.tscn")
 
@@ -15,6 +16,7 @@ const PROJECTILE_SCENE := preload("res://scenes/projectile.tscn")
 @onready var enemy_spawner: MultiplayerSpawner = $EnemySpawner
 @onready var projectile_spawner: MultiplayerSpawner = $ProjectileSpawner
 @onready var projectiles_root: Node3D = $Projectiles
+@onready var loot_spawner: MultiplayerSpawner = $LootSpawner
 
 var level: Node3D
 var _peers_ready: Dictionary = {}  # peer_id -> true quand le client a chargé la scène
@@ -26,6 +28,7 @@ func _ready() -> void:
 	player_spawner.spawn_function = _spawn_player
 	enemy_spawner.spawn_function = _spawn_enemy
 	projectile_spawner.spawn_function = _spawn_projectile
+	loot_spawner.spawn_function = _spawn_loot
 	FloatingText.install(self)
 	level = level_scene.instantiate()
 	level_root.add_child(level)
@@ -129,6 +132,21 @@ func _spawn_projectile(data: Dictionary) -> Node:
 	p.explode_on_arrival = data.get("explode_on_arrival", false)
 	p.target_point = data.get("target_point", Vector3.ZERO)
 	return p
+
+
+## Hôte : fait apparaître un objet au sol chez tout le monde. data = {entry: {id, qty, rarity}, position}
+func spawn_loot(data: Dictionary) -> void:
+	loot_spawner.spawn(data)
+
+
+func _spawn_loot(data: Dictionary) -> Node:
+	var l: LootDrop = LOOT_SCENE.instantiate()
+	var e: Dictionary = data.get("entry", {})
+	l.item_id = e.get("id", "gold")
+	l.qty = int(e.get("qty", 1))
+	l.rarity = e.get("rarity", "common")
+	l.position = data.get("position", Vector3.ZERO)
+	return l
 
 
 ## Effet visuel simple (sphère qui s'étend et s'efface), sur toutes les machines.

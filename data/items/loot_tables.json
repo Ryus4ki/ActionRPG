@@ -1,0 +1,41 @@
+{
+  "_comment": "Tables de butin. 'gold' = dés de pièces ; 'drops' = tirages indépendants (chance 0-1). 'pool' = tous les objets d'un type (weapon/armor/shield), 'item' = un objet précis. La rareté est tirée dans _rarity_table de items.json.",
+  "default": {
+    "gold": "1d6",
+    "drops": [
+      {"item": "potion_healing", "chance": 0.25},
+      {"pool": "weapon", "chance": 0.08},
+      {"pool": "armor", "chance": 0.05},
+      {"pool": "shield", "chance": 0.03}
+    ]
+  },
+  "elite": {
+    "gold": "3d6",
+    "drops": [
+      {"item": "potion_healing", "chance": 0.6},
+      {"pool": "weapon", "chance": 0.25},
+      {"pool": "armor", "chance": 0.15}
+    ]
+  },
+  "boss": {
+    "gold": "6d10",
+    "drops": [
+      {"item": "potion_greater_healing", "chance": 1.0},
+      {"pool": "weapon", "chance": 1.0, "min_rarity": "uncommon"},
+      {"pool": "armor", "chance": 0.5, "min_rarity": "uncommon"}
+    ]
+  },
+  "chest": {
+    "gold": "4d10",
+    "drops": [
+      {"item": "potion_healing", "chance": 1.0, "qty": "1d2"},
+      {"pool": "weapon", "chance": 0.6},
+      {"pool": "armor", "chance": 0.4},
+      {"pool": "shield", "chance": 0.3}
+    ]
+  },
+  "by_monster": {
+    "ogre": "elite",
+    "goblin_boss": "boss"
+  }
+}

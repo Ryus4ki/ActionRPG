@@ -9,6 +9,7 @@ var spells: Dictionary = {}
 var monsters: Dictionary = {}
 var items: Dictionary = {}
 var rarities: Dictionary = {}
+var loot_tables: Dictionary = {}
 
 
 func _ready() -> void:
@@ -23,6 +24,8 @@ func load_all() -> void:
 	items = _load_file("res://data/items/items.json")
 	rarities = items.get("_rarity_table", {})
 	items.erase("_rarity_table")
+	loot_tables = _load_file("res://data/items/loot_tables.json")
+	loot_tables.erase("_comment")
 
 
 ## Charge chaque .json d'un dossier ; la clé est le champ "id" (ou le nom du fichier).

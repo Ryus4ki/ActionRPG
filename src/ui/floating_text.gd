@@ -31,6 +31,9 @@ static func install(parent: Node) -> void:
 		if not is_instance_valid(target):
 			return
 		var pos := target.global_position + Vector3(0, 1.9, 0)
+		if result.has("heal"):
+			spawn(parent, pos, "+%d" % int(result.heal), Color(0.4, 1.0, 0.5))
+			return
 		if not result.get("hit", false):
 			var txt := "Raté"
 			var col := Color(0.75, 0.75, 0.75)

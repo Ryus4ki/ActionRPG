@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://src/world/test_arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" path="res://scenes/chest.tscn" id="2_chest"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(30, 1, 30)
@@ -137,6 +138,9 @@ surface_material_override/0 = SubResource("Mat_wall")
 
 [node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/Pillar3"]
 shape = SubResource("BoxShape3D_pillar")
+
+[node name="Chest" parent="NavigationRegion3D" instance=ExtResource("2_chest")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
 
 [node name="Spawns" type="Node3D" parent="."]
 

@@ -34,6 +34,7 @@ static var SHIELD_STRAP := Transform3D(Basis.from_euler(Vector3(deg_to_rad(40.44
 @onready var camera: Camera3D = $CameraPivot/SpringArm3D/Camera3D
 @onready var melee_area: Area3D = $MeleeArea
 @onready var spell_book: SpellBook = $SpellBook
+@onready var inventory: Inventory = $Inventory
 
 var mouse_sensitivity := 0.0025
 var pitch_min := deg_to_rad(-60)
@@ -89,22 +90,17 @@ func _setup_character() -> void:
 	if not player_name.is_empty():
 		stats.display_name = "%s (%s)" % [player_name, stats.display_name]
 	var cls: Dictionary = GameData.player_class(class_id)
-	# Équipement de départ : première arme, armure, bouclier trouvés.
-	for item_id in cls.get("starting_equipment", []):
-		var item: Dictionary = GameData.item(item_id)
-		match item.get("type", ""):
-			"weapon":
-				if weapon.is_empty():
-					weapon = item
-					attach_to_bone("hand.R", "res://assets/models/%s.glb" % item.get("model", "sm_sword"), WEAPON_GRIP)
-			"armor":
-				stats.equip_armor(item)
-			"shield":
-				stats.equip_shield(item)
-				has_shield = true
-				attach_to_bone("forearm.L", "res://assets/models/sm_shield.glb", SHIELD_STRAP)
-	if weapon.is_empty():
-		weapon = {"name": "Poings", "damage": "1d1", "damage_type": "bludgeoning", "ability": "str"}
+	inventory.changed.connect(_apply_equipment)
+	if is_server():
+		# Équipement de départ : tout dans le sac, puis on équipe arme / armure / bouclier.
+		for item_id in cls.get("starting_equipment", []):
+			inventory.add({"id": item_id, "qty": 1, "rarity": "common"})
+		for slot in ["weapon", "armor", "shield"]:
+			for i in inventory.items.size():
+				if Inventory.item_data(inventory.items[i]).get("type", "") == slot:
+					inventory.equip(i)
+					break
+	_apply_equipment()
 	if cls.has("spellcasting_ability"):
 		spell_book.setup(cls, stats.level)
 		stats.level_changed.connect(func(lvl: int):
@@ -114,6 +110,55 @@ func _setup_character() -> void:
 				health.heal(health.max_hp))
 	if is_server():
 		health.setup(stats.max_hp())
+
+
+## Applique l'équipement (stats + modèles 3D). Appelé sur toutes les machines à chaque changement.
+func _apply_equipment() -> void:
+	var eq := inventory.equipped
+	# Arme
+	if eq.has("weapon"):
+		var data := Inventory.item_data(eq["weapon"]).duplicate()
+		data["magic_bonus"] = Inventory.magic_bonus(eq["weapon"])
+		data["name"] = Inventory.display_name(eq["weapon"])
+		weapon = data
+		attach_to_bone("hand.R", "res://assets/models/%s.glb" % data.get("model", "sm_sword"), WEAPON_GRIP)
+	else:
+		weapon = {"name": "Poings", "damage": "1d1", "damage_type": "bludgeoning", "ability": "str"}
+		_clear_bone("hand.R")
+	# Armure
+	stats.set_armor(Inventory.item_data(eq["armor"]) if eq.has("armor") else {})
+	# Bouclier
+	has_shield = eq.has("shield")
+	stats.set_shield(Inventory.item_data(eq["shield"]) if has_shield else {})
+	if has_shield:
+		attach_to_bone("forearm.L", "res://assets/models/sm_shield.glb", SHIELD_STRAP)
+	else:
+		_clear_bone("forearm.L")
+		if is_blocking:
+			set_blocking(false)
+	# Bonus magiques défensifs
+	stats.equipment_ac_bonus = (Inventory.magic_bonus(eq["armor"]) if eq.has("armor") else 0) \
+		+ (Inventory.magic_bonus(eq["shield"]) if eq.has("shield") else 0)
+
+
+func _clear_bone(bone: String) -> void:
+	var att: Node = attachments.get(bone)
+	if att:
+		for c in att.get_children():
+			c.queue_free()
+
+
+## Hôte : un objet vient d'être ramassé par ce joueur → prévenir sa machine.
+func on_item_picked(entry: Dictionary) -> void:
+	if peer_id == multiplayer.get_unique_id():
+		EventBus.item_picked.emit(entry)
+	else:
+		_rpc_picked.rpc_id(peer_id, entry)
+
+
+@rpc("authority", "reliable")
+func _rpc_picked(entry: Dictionary) -> void:
+	EventBus.item_picked.emit(entry)
 
 
 # ------------------------------------------------------------------ entrées locales
@@ -181,6 +226,8 @@ func _do_action(action: String) -> void:
 			spell_book.restore_all()
 		"cast":
 			try_cast()
+		"use_potion":
+			use_potion()
 		"spell_next":
 			spell_book.select_next(1)
 		"spell_prev":
@@ -188,6 +235,12 @@ func _do_action(action: String) -> void:
 		_:
 			if action.begins_with("spell_"):
 				spell_book.select(int(action.trim_prefix("spell_")))
+			elif action.begins_with("equip:"):
+				inventory.equip(int(action.trim_prefix("equip:")))
+			elif action.begins_with("unequip:"):
+				inventory.unequip(action.trim_prefix("unequip:"))
+			elif action.begins_with("use:"):
+				use_item(int(action.trim_prefix("use:")))
 
 
 func _gather_local_input() -> void:
@@ -201,6 +254,8 @@ func _gather_local_input() -> void:
 		request_action("dodge")
 	if Input.is_action_just_pressed("interact"):
 		request_action("interact")
+	if Input.is_action_just_pressed("use_potion"):
+		request_action("use_potion")
 	if spell_book.is_caster():
 		if Input.is_action_just_pressed("spell_prev"):
 			request_action("spell_prev")
@@ -350,7 +405,7 @@ func try_dodge() -> bool:
 	return true
 
 
-## Relève un coéquipier à terre à portée.
+## E : relève un coéquipier à terre à portée, sinon ouvre un coffre proche.
 func try_interact() -> bool:
 	if not health.is_alive() or is_busy():
 		return false
@@ -359,6 +414,45 @@ func try_interact() -> bool:
 				and global_position.distance_to(p.global_position) <= REVIVE_RANGE:
 			p.health.revive(0.25)
 			play_anim("cast", 0.1, true)
+			return true
+	for c in get_tree().get_nodes_in_group("chests"):
+		if c.has_method("open") and not c.opened and global_position.distance_to(c.global_position) <= REVIVE_RANGE:
+			c.open(self)
+			play_anim("cast", 0.1, true)
+			return true
+	return false
+
+
+## Boit la meilleure potion de soins disponible.
+func use_potion() -> bool:
+	if not health.is_alive() or health.hp >= health.max_hp:
+		return false
+	for pid in ["potion_greater_healing", "potion_healing"]:
+		var idx := inventory.find_index(pid)
+		if idx >= 0:
+			return use_item(idx)
+	return false
+
+
+## Utilise un consommable de l'inventaire (hôte).
+func use_item(index: int) -> bool:
+	if index < 0 or index >= inventory.items.size() or not health.is_alive():
+		return false
+	var entry: Dictionary = inventory.items[index]
+	var data := Inventory.item_data(entry)
+	if data.get("type", "") != "consumable":
+		return false
+	var effect: Dictionary = data.get("effect", {})
+	match effect.get("type", ""):
+		"heal":
+			if health.hp >= health.max_hp:
+				return false
+			var amount := Dice.roll_expr(str(effect.get("amount", "2d4+2")), CombatResolver.rng)
+			inventory.remove_at(index, 1)
+			health.heal(amount)
+			play_anim("cast", 0.1, true)
+			EventBus.hit_resolved.emit(self, {"attacker": self, "target": self, "attack_name": data.get("name", "Potion"),
+				"hit": true, "heal": amount, "damage": 0, "damage_type": 0})
 			return true
 	return false
 

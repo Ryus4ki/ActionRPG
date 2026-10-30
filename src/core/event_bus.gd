@@ -11,3 +11,6 @@ signal creature_downed(creature: Node3D)
 
 ## Le joueur local a été créé (le HUD s'y connecte).
 signal local_player_ready(player: Node3D)
+
+## Le joueur local a ramassé un objet ({id, qty, rarity}).
+signal item_picked(entry: Dictionary)

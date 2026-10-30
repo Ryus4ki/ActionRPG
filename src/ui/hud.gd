@@ -32,6 +32,10 @@ var _chat: RichTextLabel
 var _help_panel: PanelContainer
 var _spell_bar: HBoxContainer
 var _status: Label
+var _gold_label: Label
+var _inv_panel: PanelContainer
+var _inv_list: VBoxContainer
+var _inv_title: Label
 var _ally_refresh := 0.0
 
 
@@ -41,6 +45,7 @@ func _ready() -> void:
 	EventBus.hit_resolved.connect(_on_hit_resolved)
 	EventBus.creature_died.connect(_on_creature_died)
 	EventBus.creature_downed.connect(_on_creature_downed)
+	EventBus.item_picked.connect(_on_item_picked)
 	for p in get_tree().get_nodes_in_group("players"):
 		if p is PlayerCharacter and p.is_local:
 			bind_player(p)
@@ -51,6 +56,8 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_H:
 		_help_panel.visible = not _help_panel.visible
+	elif event.is_action_pressed("inventory"):
+		toggle_inventory()
 
 
 # ============================================================ construction
@@ -130,10 +137,12 @@ func _build_ui() -> void:
 	_xp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_xp_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	xp_holder.add_child(_xp_text)
+	_gold_label = _make_label("", FONT_SMALL, Color(0.95, 0.85, 0.55))
+	v.add_child(_gold_label)
 
 	# --- Coéquipiers (sous le cadre) ---
 	_allies_box = VBoxContainer.new()
-	_allies_box.position = Vector2(12, 100)
+	_allies_box.position = Vector2(12, 118)
 	_allies_box.add_theme_constant_override("separation", 4)
 	_root.add_child(_allies_box)
 
@@ -189,6 +198,7 @@ func _build_ui() -> void:
 		["Clic G / R2", "Attaquer"], ["Clic D / L2", "Garde (guerrier) · Sort (magicien)"],
 		["Molette, 1-4 / L1 R1", "Choisir le sort"], ["Espace / Croix", "Esquiver"],
 		["E / Rond", "Relever un allié"], ["Échap / Options", "Libérer la souris"],
+		["F / Triangle", "Boire une potion"], ["I / Croix gauche", "Inventaire"],
 		["Maj+Échap", "Retour au menu"], ["F1 · F2", "Debug : invulnérable · soin"],
 	]:
 		grid.add_child(_make_label(row[0], FONT_SMALL, Color(0.95, 0.9, 0.75)))
@@ -209,6 +219,30 @@ func _build_ui() -> void:
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_root.add_child(_status)
 
+	# --- Inventaire (centre droit, masqué) ---
+	_inv_panel = PanelContainer.new()
+	_inv_panel.add_theme_stylebox_override("panel", _panel_style(10))
+	_inv_panel.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
+	_inv_panel.anchor_left = 1.0
+	_inv_panel.anchor_right = 1.0
+	_inv_panel.anchor_top = 0.5
+	_inv_panel.anchor_bottom = 0.5
+	_inv_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_inv_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_inv_panel.offset_right = -12
+	_inv_panel.custom_minimum_size = Vector2(340, 0)
+	_inv_panel.visible = false
+	_root.add_child(_inv_panel)
+	var iv := VBoxContainer.new()
+	iv.add_theme_constant_override("separation", 4)
+	_inv_panel.add_child(iv)
+	_inv_title = _make_label("Inventaire", FONT_TITLE, Color(0.95, 0.9, 0.75))
+	iv.add_child(_inv_title)
+	_inv_list = VBoxContainer.new()
+	_inv_list.add_theme_constant_override("separation", 2)
+	iv.add_child(_inv_list)
+	iv.add_child(_make_label("I : fermer", 10, Color(0.6, 0.6, 0.65)))
+
 
 # ============================================================ liaison joueur
 
@@ -228,6 +262,8 @@ func bind_player(p: PlayerCharacter) -> void:
 		_build_spell_bar()
 		player.spell_book.changed.connect(_refresh_spell_bar)
 		_refresh_spell_bar()
+	player.inventory.changed.connect(_refresh_inventory)
+	_refresh_inventory()
 
 
 func _process(delta: float) -> void:
@@ -324,6 +360,9 @@ func _on_hit_resolved(target: Node3D, r: Dictionary) -> void:
 	var dtype := CombatRules.damage_type_name(r.get("damage_type", 0))
 	var what: String = (" (%s)" % r.attack_name) if r.get("attack_name", "") != "" and attacker is PlayerCharacter else ""
 	var line: String
+	if r.has("heal"):
+		chat_line("[color=#80e090]%s boit %s : +%d PV[/color]" % [t_name, r.get("attack_name", "une potion"), int(r.heal)])
+		return
 	if r.has("save_d20"):
 		line = "%s%s → %s : sauv. %d vs DD %d %s → [b]%d[/b] %s" % [
 			a_name, what, t_name, r.save_total, r.dc, "ok" if r.save_success else "ratée", r.damage, dtype]
@@ -413,3 +452,90 @@ func _refresh_spell_bar() -> void:
 		lbl.add_theme_color_override("font_color", Color(1, 1, 1) if usable else Color(0.5, 0.5, 0.5))
 		panel.add_child(lbl)
 		_spell_bar.add_child(panel)
+
+
+# ============================================================ inventaire
+
+func toggle_inventory() -> void:
+	_inv_panel.visible = not _inv_panel.visible
+	if _inv_panel.visible:
+		_refresh_inventory()
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	elif DisplayServer.get_name() != "headless":
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _on_item_picked(entry: Dictionary) -> void:
+	var data := Inventory.item_data(entry)
+	if data.get("type", "") == "currency":
+		chat_line("[color=#f0d070]+%d pièces d'or[/color]" % int(entry.get("qty", 1)))
+	else:
+		var col := Inventory.rarity_color(entry).to_html(false)
+		var qty := int(entry.get("qty", 1))
+		chat_line("Ramassé : [color=#%s]%s[/color]%s" % [col, Inventory.display_name(entry), (" ×%d" % qty) if qty > 1 else ""])
+
+
+func _refresh_inventory() -> void:
+	if player == null:
+		return
+	var inv := player.inventory
+	_gold_label.text = "%d po  ·  %d potion(s)" % [inv.gold, inv.count("potion_healing") + inv.count("potion_greater_healing")]
+	if not _inv_panel.visible:
+		return
+	for c in _inv_list.get_children():
+		c.queue_free()
+	_inv_title.text = "Inventaire — %d po" % inv.gold
+	# Équipement
+	_inv_list.add_child(_make_label("Équipé", FONT_SMALL, Color(0.8, 0.75, 0.6)))
+	for slot in ["weapon", "armor", "shield"]:
+		var row := HBoxContainer.new()
+		var slot_name: String = {"weapon": "Arme", "armor": "Armure", "shield": "Bouclier"}[slot]
+		if inv.equipped.has(slot):
+			var e: Dictionary = inv.equipped[slot]
+			var l := _make_label("%s : %s" % [slot_name, Inventory.display_name(e)], FONT_SMALL, Inventory.rarity_color(e))
+			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			row.add_child(l)
+			var b := Button.new()
+			b.text = "Retirer"
+			b.add_theme_font_size_override("font_size", FONT_SMALL)
+			b.pressed.connect(func(): player.request_action("unequip:" + slot))
+			row.add_child(b)
+		else:
+			var l := _make_label("%s : —" % slot_name, FONT_SMALL, Color(0.55, 0.55, 0.6))
+			row.add_child(l)
+		_inv_list.add_child(row)
+	# Sac
+	_inv_list.add_child(_make_label("Sac (%d/%d)" % [inv.items.size(), Inventory.MAX_SLOTS], FONT_SMALL, Color(0.8, 0.75, 0.6)))
+	if inv.items.is_empty():
+		_inv_list.add_child(_make_label("(vide)", FONT_SMALL, Color(0.55, 0.55, 0.6)))
+	for i in inv.items.size():
+		var e: Dictionary = inv.items[i]
+		var data := Inventory.item_data(e)
+		var row := HBoxContainer.new()
+		var qty := int(e.get("qty", 1))
+		var txt := Inventory.display_name(e) + ((" ×%d" % qty) if qty > 1 else "")
+		var t: String = data.get("type", "")
+		if t == "weapon":
+			txt += "  (%s %s)" % [data.get("damage", ""), CombatRules.damage_type_name(StatBlock.damage_type_from_string(data.get("damage_type", "bludgeoning")))]
+		elif t == "armor":
+			txt += "  (CA %d)" % int(data.get("base_ac", 10))
+		elif t == "shield":
+			txt += "  (+%d CA)" % int(data.get("ac_bonus", 0))
+		var l := _make_label(txt, FONT_SMALL, Inventory.rarity_color(e))
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(l)
+		if t in ["weapon", "armor", "shield"]:
+			var b := Button.new()
+			b.text = "Équiper"
+			b.add_theme_font_size_override("font_size", FONT_SMALL)
+			var idx := i
+			b.pressed.connect(func(): player.request_action("equip:%d" % idx))
+			row.add_child(b)
+		elif t == "consumable":
+			var b := Button.new()
+			b.text = "Utiliser"
+			b.add_theme_font_size_override("font_size", FONT_SMALL)
+			var idx := i
+			b.pressed.connect(func(): player.request_action("use:%d" % idx))
+			row.add_child(b)
+		_inv_list.add_child(row)
