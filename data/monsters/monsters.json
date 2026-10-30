@@ -5,7 +5,7 @@
     "ac": 15, "hp": "2d6", "hp_fixed": 7, "speed": 30,
     "attacks": [{"name": "Cimeterre", "bonus": 4, "damage": "1d6+2", "damage_type": "slashing", "reach": 1.5, "cooldown": 1.5}],
     "traits": ["nimble_escape"],
-    "behavior": {"aggro_range": 12, "flee_below_hp_pct": 0.0, "prefers_group": true},
+    "behavior": {"aggro_range": 8, "flee_below_hp_pct": 0.0, "prefers_group": true},
     "model": "sk_humanoid", "scale": 0.8, "tint": "#5a8a3c"
   },
   "goblin_archer": {
@@ -23,7 +23,7 @@
     "attacks": [{"name": "Épée courte", "bonus": 4, "damage": "1d6+2", "damage_type": "piercing", "reach": 1.5, "cooldown": 1.5}],
     "damage_vulnerabilities": ["bludgeoning"], "damage_immunities": ["poison"],
     "condition_immunities": ["poisoned", "exhaustion"],
-    "behavior": {"aggro_range": 10},
+    "behavior": {"aggro_range": 8},
     "model": "sk_humanoid", "scale": 1.0, "tint": "#d8d2c0"
   },
   "giant_spider": {

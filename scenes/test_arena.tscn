@@ -1,0 +1,160 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/world/test_arena.gd" id="1_arena"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(30, 1, 30)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(30, 1, 30)
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor"]
+albedo_color = Color(0.32, 0.32, 0.35, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wallx"]
+size = Vector3(30, 3, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wallx"]
+size = Vector3(30, 3, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_pillar"]
+size = Vector3(1.2, 3, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pillar"]
+size = Vector3(1.2, 3, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_wall"]
+albedo_color = Color(0.45, 0.44, 0.46, 1)
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.08, 0.08, 0.1, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.6, 0.7, 1)
+ambient_light_energy = 0.6
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.1, 0.1, 0.13, 1)
+fog_density = 0.015
+
+[node name="TestArena" type="Node3D"]
+script = ExtResource("1_arena")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+collision_layer = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/Floor"]
+mesh = SubResource("BoxMesh_floor")
+surface_material_override/0 = SubResource("Mat_floor")
+
+[node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="WallN" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -15)
+collision_layer = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallN"]
+mesh = SubResource("BoxMesh_wallx")
+surface_material_override/0 = SubResource("Mat_wall")
+
+[node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/WallN"]
+shape = SubResource("BoxShape3D_wallx")
+
+[node name="WallS" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 15)
+collision_layer = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallS"]
+mesh = SubResource("BoxMesh_wallx")
+surface_material_override/0 = SubResource("Mat_wall")
+
+[node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/WallS"]
+shape = SubResource("BoxShape3D_wallx")
+
+[node name="WallE" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 15, 1.5, 0)
+collision_layer = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallE"]
+mesh = SubResource("BoxMesh_wallx")
+surface_material_override/0 = SubResource("Mat_wall")
+
+[node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/WallE"]
+shape = SubResource("BoxShape3D_wallx")
+
+[node name="WallW" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -15, 1.5, 0)
+collision_layer = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallW"]
+mesh = SubResource("BoxMesh_wallx")
+surface_material_override/0 = SubResource("Mat_wall")
+
+[node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/WallW"]
+shape = SubResource("BoxShape3D_wallx")
+
+[node name="Pillar1" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, -5)
+collision_layer = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/Pillar1"]
+mesh = SubResource("BoxMesh_pillar")
+surface_material_override/0 = SubResource("Mat_wall")
+
+[node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/Pillar1"]
+shape = SubResource("BoxShape3D_pillar")
+
+[node name="Pillar2" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, 5)
+collision_layer = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/Pillar2"]
+mesh = SubResource("BoxMesh_pillar")
+surface_material_override/0 = SubResource("Mat_wall")
+
+[node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/Pillar2"]
+shape = SubResource("BoxShape3D_pillar")
+
+[node name="Pillar3" type="StaticBody3D" parent="NavigationRegion3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.5, 6)
+collision_layer = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/Pillar3"]
+mesh = SubResource("BoxMesh_pillar")
+surface_material_override/0 = SubResource("Mat_wall")
+
+[node name="Shape" type="CollisionShape3D" parent="NavigationRegion3D/Pillar3"]
+shape = SubResource("BoxShape3D_pillar")
+
+[node name="Spawns" type="Node3D" parent="."]
+
+[node name="goblin_1" type="Marker3D" parent="Spawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -10)
+
+[node name="goblin_2" type="Marker3D" parent="Spawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -11)
+
+[node name="skeleton_1" type="Marker3D" parent="Spawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
+
+[node name="Enemies" type="Node3D" parent="."]
+
+[node name="PlayerSpawns" type="Node3D" parent="."]
+
+[node name="P1" type="Marker3D" parent="PlayerSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.1, 0)
+
+[node name="P2" type="Marker3D" parent="PlayerSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.1, 0)

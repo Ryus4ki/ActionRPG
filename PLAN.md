@@ -135,18 +135,18 @@ Convention : un seul `.blend` source, export par collection, nommage `sm_*` / `s
 - [x] Tables JSON : 2 classes, 3 races, 6 sorts, 6 monstres, 12 objets + autoload `GameData` avec validation croisée.
 - [x] Placeholders v1 générés (`tools/gen_placeholders.py`, 20 .glb dans `assets/models/`) — import Godot à vérifier à l'ouverture.
 
-### M1 — Un joueur dans une arène (2-3 semaines)
-- [ ] Contrôleur TPS : déplacement, caméra, verrouillage de cible optionnel.
-- [ ] Attaque de mêlée avec hitbox, dégâts via `rules/`, chiffres flottants.
-- [ ] Un ennemi (gobelin) : patrouille, poursuite, attaque, mort, `NavigationAgent3D`.
-- [ ] HUD : PV, emplacements de sorts, cooldowns.
+### M1 — Un joueur dans une arène (2-3 semaines) — fait le 2026-10-28, test de fumée headless `tests/smoke_arena.tscn`
+- [x] Contrôleur TPS : déplacement relatif caméra, SpringArm, esquive (Espace). Verrouillage de cible : reporté.
+- [x] Attaque de mêlée (zone devant le joueur, impact à 0,4 s), `CombatResolver` → `rules/`, chiffres flottants (`FloatingText`).
+- [x] Ennemis génériques depuis `monsters.json` (`Enemy`) : aggro, poursuite `NavigationAgent3D` (navmesh cuit au runtime), attaque, mort, XP. Arène : 2 gobelins + 1 squelette.
+- [x] HUD : nom/niveau/CA, barre de PV, XP, journal de combat avec les jets. Emplacements de sorts : M3.
 
-### M2 — Coop LAN (2-3 semaines)
-- [ ] Menu Héberger / Rejoindre, découverte UDP.
-- [ ] Lobby avec choix de classe, spawn des 2 joueurs.
-- [ ] Réplication mouvement, attaques, PV, ennemis.
-- [ ] Relever un coéquipier à terre.
-- [ ] Test sur 2 PC réels (pas seulement 2 instances locales).
+### M2 — Coop LAN (2-3 semaines) — code fait le 2026-10-30, reste le test sur 2 PC
+- [x] Menu Héberger / Rejoindre / Solo, découverte UDP (broadcast port 7778, jeu port 7777), saisie d'IP.
+- [x] Lobby avec choix classe/race et état prêt ; spawn via `MultiplayerSpawner` sur les `PlayerSpawns` du niveau.
+- [x] Réplication (`MultiplayerSynchronizer`) : position, rotation, animation, garde, PV, états, XP/niveau ; entrées client → hôte par RPC ; événements de combat hôte → clients.
+- [x] Relever un coéquipier à terre (touche E, 2,5 m). Relevé automatique seulement si aucun allié vivant.
+- [ ] Test sur 2 PC réels (pas seulement 2 instances locales). Test automatisé : `tests/net_smoke.tscn` (hôte + client headless).
 
 ### M3 — Vraie boucle RPG (3-4 semaines)
 - [ ] Magicien : 3 sorts avec projectiles/zones, emplacements, repos au feu de camp.

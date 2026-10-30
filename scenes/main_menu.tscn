@@ -1,0 +1,134 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/main_menu.gd" id="1_menu"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.08, 0.1, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Action RPG"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
+text = "Prototype coop LAN"
+horizontal_alignment = 1
+
+[node name="NameRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="Center/Panel/Margin/VBox/NameRow"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Ton nom"
+
+[node name="NameEdit" type="LineEdit" parent="Center/Panel/Margin/VBox/NameRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_length = 20
+
+[node name="SoloButton" type="Button" parent="Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Jouer en solo"
+
+[node name="HSep1" type="HSeparator" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="GameNameRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="GameNameLabel" type="Label" parent="Center/Panel/Margin/VBox/GameNameRow"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Nom de la partie"
+
+[node name="GameNameEdit" type="LineEdit" parent="Center/Panel/Margin/VBox/GameNameRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_length = 30
+
+[node name="HostButton" type="Button" parent="Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Héberger une partie (LAN)"
+
+[node name="HSep2" type="HSeparator" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="LanLabel" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Parties sur le réseau local"
+
+[node name="LanList" type="ItemList" parent="Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+
+[node name="IpRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="IpLabel" type="Label" parent="Center/Panel/Margin/VBox/IpRow"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Ou adresse IP"
+
+[node name="IpEdit" type="LineEdit" parent="Center/Panel/Margin/VBox/IpRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "192.168.1.20"
+
+[node name="JoinButton" type="Button" parent="Center/Panel/Margin/VBox/IpRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Rejoindre"
+
+[node name="Status" type="Label" parent="Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.5, 1)
+text = ""
+autowrap_mode = 3
+
+[node name="QuitButton" type="Button" parent="Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quitter"

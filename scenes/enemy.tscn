@@ -1,0 +1,74 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/entities/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://src/entities/components/stat_block.gd" id="2_stats"]
+[ext_resource type="Script" path="res://src/entities/components/health.gd" id="3_health"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.3
+height = 1.8
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_sync"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:anim_name")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:anim_seq")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:is_blocking")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath("Health:max_hp")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath("Health:hp")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath("Health:is_downed")
+properties/7/spawn = true
+properties/7/replication_mode = 2
+properties/8/path = NodePath("Health:is_dead")
+properties/8/spawn = true
+properties/8/replication_mode = 2
+properties/9/path = NodePath("Health:invulnerable")
+properties/9/spawn = true
+properties/9/replication_mode = 2
+properties/10/path = NodePath("StatBlock:level")
+properties/10/spawn = true
+properties/10/replication_mode = 2
+properties/11/path = NodePath("StatBlock:xp")
+properties/11/spawn = true
+properties/11/replication_mode = 2
+
+[node name="Enemy" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_enemy")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="ModelRoot" type="Node3D" parent="."]
+
+[node name="StatBlock" type="Node" parent="."]
+script = ExtResource("2_stats")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.5
+target_desired_distance = 1.2
+path_max_distance = 3.0
+avoidance_enabled = true
+radius = 0.4
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_sync")

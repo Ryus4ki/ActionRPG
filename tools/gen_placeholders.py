@@ -7,7 +7,7 @@ Exécution (depuis la racine du projet) :
 ou, dans Blender : Scripting → ouvrir ce fichier → Exécuter.
 
 Sortie : assets/models/*.glb
-    sk_humanoid.glb   humanoïde riggé + animations (idle, walk, run, attack, cast, hit, death, downed, revive)
+    sk_humanoid.glb   humanoïde riggé + animations (idle, walk, run, attack, cast, hit, death, downed, block, block_walk, revive)
     sk_spider.glb     araignée (rig minimal) + idle/walk/attack
     sm_sword / sm_axe / sm_mace / sm_dagger / sm_staff / sm_shield   armes (origine = poignée)
     sm_floor / sm_wall / sm_wall_door / sm_pillar / sm_stairs / sm_torch / sm_chest / sm_altar
@@ -358,6 +358,25 @@ def humanoid_animations(arm):
     key_pose(arm, 1, kneel, root_loc=(0, 0, -0.55))
     key_pose(arm, 30, {**kneel, "spine": (30, 0, 0)}, root_loc=(0, 0, -0.57))
     key_pose(arm, 60, kneel, root_loc=(0, 0, -0.55))
+    push_to_nla(arm, a)
+
+    # Block : garde bouclier, bras gauche levé devant le torse, boucle (léger balancement)
+    a = new_action(arm, "block", 40)
+    guard = {"upper_arm.L": (-75, 0, -25), "forearm.L": (-70, 0, 0), "upper_arm.R": (-20, 0, 15), "forearm.R": (-40, 0, 0),
+             "chest": (6, 0, 15), "head": (0, 0, -10)}
+    key_pose(arm, 1, guard)
+    key_pose(arm, 20, {**guard, "chest": (8, 0, 15)}, root_loc=(0, 0, -0.02))
+    key_pose(arm, 40, guard)
+    push_to_nla(arm, a)
+
+    # Block_walk : marche lente avec la garde (haut du corps = block, jambes = walk)
+    a = new_action(arm, "block_walk", 40)
+    swing = 22
+    for f, sg in ((1, 1), (21, -1), (40, 1)):
+        key_pose(arm, f, {**guard,
+            "thigh.L": (sg * swing, 0, 0), "thigh.R": (-sg * swing, 0, 0),
+            "shin.L": (-abs(swing) * 0.5 if sg < 0 else 0, 0, 0), "shin.R": (-abs(swing) * 0.5 if sg > 0 else 0, 0, 0),
+        })
     push_to_nla(arm, a)
 
     # Revive : du sol à debout, 1 s
