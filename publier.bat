@@ -27,6 +27,8 @@ if errorlevel 1 (
     exit /b 1
 )
 echo.
+git status -sb
+echo.
 echo  Publie sur GitHub. Ton coequipier recevra la mise a jour au prochain jouer.bat.
-timeout /t 4 >nul
+pause
 endlocal
