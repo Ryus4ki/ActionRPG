@@ -103,7 +103,7 @@ func slot_level_for(spell: Dictionary) -> int:
 
 
 func on_cooldown(spell_id: String) -> bool:
-	return Time.get_ticks_msec() / 1000.0 < float(_cooldown_until.get(spell_id, 0.0))
+	return GameData.now() < float(_cooldown_until.get(spell_id, 0.0))
 
 
 func can_cast(spell_id: String) -> bool:
@@ -121,7 +121,7 @@ func consume(spell_id: String) -> int:
 		var s := slots.duplicate()
 		s[str(lvl)] = int(s[str(lvl)]) - 1
 		slots = s
-	_cooldown_until[spell_id] = Time.get_ticks_msec() / 1000.0 + float(spell.get("cooldown", 1.0))
+	_cooldown_until[spell_id] = GameData.now() + float(spell.get("cooldown", 1.0))
 	return lvl
 
 

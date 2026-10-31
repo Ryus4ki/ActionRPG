@@ -1,39 +1,107 @@
 {
   "fire_bolt": {
-    "name": "Trait de feu", "level": 0, "school": "evocation", "cast_time": 0.6, "cooldown": 1.2,
-    "range": 36, "targeting": "projectile", "projectile_speed": 25,
-    "resolution": "spell_attack", "damage": "1d10", "damage_type": "fire",
-    "scaling": {"5": "2d10", "11": "3d10"}
+    "name": "Trait de feu",
+    "level": 0,
+    "school": "evocation",
+    "cast_time": 1.0,
+    "cooldown": 1.2,
+    "range": 36,
+    "targeting": "projectile",
+    "projectile_speed": 25,
+    "resolution": "spell_attack",
+    "damage": "1d10",
+    "damage_type": "fire",
+    "scaling": {
+      "5": "2d10",
+      "11": "3d10"
+    }
   },
   "magic_missile": {
-    "name": "Projectile magique", "level": 1, "school": "evocation", "cast_time": 0.5, "cooldown": 2.0,
-    "range": 36, "targeting": "homing_multi", "projectiles": 3, "projectile_speed": 30,
-    "resolution": "auto_hit", "damage": "1d4+1", "damage_type": "force",
-    "upcast": {"projectiles_per_slot_level": 1}
+    "name": "Projectile magique",
+    "level": 1,
+    "school": "evocation",
+    "cast_time": 1.5,
+    "cooldown": 2.0,
+    "range": 36,
+    "targeting": "homing_multi",
+    "projectiles": 3,
+    "projectile_speed": 30,
+    "resolution": "auto_hit",
+    "damage": "1d4+1",
+    "damage_type": "force",
+    "upcast": {
+      "projectiles_per_slot_level": 1
+    }
   },
   "burning_hands": {
-    "name": "Mains brûlantes", "level": 1, "school": "evocation", "cast_time": 0.6, "cooldown": 3.0,
-    "range": 4.5, "targeting": "cone", "cone_angle": 90,
-    "resolution": "save", "save_ability": "dex", "half_on_success": true,
-    "damage": "3d6", "damage_type": "fire",
-    "upcast": {"extra_dice_per_slot_level": "1d6"}
+    "name": "Mains brûlantes",
+    "level": 1,
+    "school": "evocation",
+    "cast_time": 1.5,
+    "cooldown": 3.0,
+    "range": 4.5,
+    "targeting": "cone",
+    "cone_angle": 90,
+    "resolution": "save",
+    "save_ability": "dex",
+    "half_on_success": true,
+    "damage": "3d6",
+    "damage_type": "fire",
+    "upcast": {
+      "extra_dice_per_slot_level": "1d6"
+    }
   },
   "mage_armor": {
-    "name": "Armure du mage", "level": 1, "school": "abjuration", "cast_time": 0.8, "cooldown": 1.0,
-    "range": 0, "targeting": "self_or_ally",
-    "resolution": "buff", "effect": {"type": "set_base_ac", "value": 13, "requires_no_armor": true}, "duration": 480.0
+    "name": "Armure du mage",
+    "level": 1,
+    "school": "abjuration",
+    "cast_time": 1.5,
+    "cooldown": 1.0,
+    "range": 0,
+    "targeting": "self_or_ally",
+    "resolution": "buff",
+    "effect": {
+      "type": "set_base_ac",
+      "value": 13,
+      "requires_no_armor": true
+    },
+    "duration": 480.0
   },
   "scorching_ray": {
-    "name": "Rayon ardent", "level": 2, "school": "evocation", "cast_time": 0.7, "cooldown": 4.0,
-    "range": 36, "targeting": "projectile_multi", "projectiles": 3, "projectile_speed": 35,
-    "resolution": "spell_attack", "damage": "2d6", "damage_type": "fire",
-    "upcast": {"projectiles_per_slot_level": 1}
+    "name": "Rayon ardent",
+    "level": 2,
+    "school": "evocation",
+    "cast_time": 2.0,
+    "cooldown": 4.0,
+    "range": 36,
+    "targeting": "projectile_multi",
+    "projectiles": 3,
+    "projectile_speed": 35,
+    "resolution": "spell_attack",
+    "damage": "2d6",
+    "damage_type": "fire",
+    "upcast": {
+      "projectiles_per_slot_level": 1
+    }
   },
   "fireball": {
-    "name": "Boule de feu", "level": 3, "school": "evocation", "cast_time": 1.0, "cooldown": 8.0,
-    "range": 45, "targeting": "ground_aoe", "radius": 6, "projectile_speed": 20,
-    "resolution": "save", "save_ability": "dex", "half_on_success": true,
-    "damage": "8d6", "damage_type": "fire", "friendly_fire": false,
-    "upcast": {"extra_dice_per_slot_level": "1d6"}
+    "name": "Boule de feu",
+    "level": 3,
+    "school": "evocation",
+    "cast_time": 2.5,
+    "cooldown": 8.0,
+    "range": 45,
+    "targeting": "ground_aoe",
+    "radius": 6,
+    "projectile_speed": 20,
+    "resolution": "save",
+    "save_ability": "dex",
+    "half_on_success": true,
+    "damage": "8d6",
+    "damage_type": "fire",
+    "friendly_fire": false,
+    "upcast": {
+      "extra_dice_per_slot_level": "1d6"
+    }
   }
 }

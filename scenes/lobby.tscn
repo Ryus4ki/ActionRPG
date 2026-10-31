@@ -92,6 +92,20 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="LevelRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LevelLabel" type="Label" parent="Center/Panel/Margin/VBox/LevelRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Niveau"
+
+[node name="LevelOption" type="OptionButton" parent="Center/Panel/Margin/VBox/LevelRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="ReadyCheck" type="CheckButton" parent="Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2

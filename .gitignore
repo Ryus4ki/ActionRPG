@@ -4,3 +4,4 @@
 /_to_delete/
 *.exe
 *.pck
+/logs/

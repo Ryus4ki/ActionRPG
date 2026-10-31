@@ -2,32 +2,95 @@
   "id": "wizard",
   "name": "Magicien",
   "hit_die": 6,
+  "hp_mult": 1.4,
   "primary_ability": "int",
   "spellcasting_ability": "int",
-  "saving_throws": ["int", "wis"],
+  "saving_throws": [
+    "int",
+    "wis"
+  ],
   "armor_proficiencies": [],
-  "weapon_proficiencies": ["dagger", "quarterstaff", "light_crossbow"],
-  "starting_equipment": ["quarterstaff", "potion_healing"],
-  "default_abilities": {"str": 8, "dex": 14, "con": 12, "int": 16, "wis": 12, "cha": 10},
-  "cantrips_known": ["fire_bolt"],
+  "weapon_proficiencies": [
+    "dagger",
+    "quarterstaff",
+    "light_crossbow"
+  ],
+  "starting_equipment": [
+    "quarterstaff",
+    "potion_healing"
+  ],
+  "default_abilities": {
+    "str": 8,
+    "dex": 14,
+    "con": 12,
+    "int": 16,
+    "wis": 12,
+    "cha": 10
+  },
+  "cantrips_known": [
+    "fire_bolt"
+  ],
   "spells_by_level": {
-    "1": ["magic_missile", "burning_hands", "mage_armor"],
-    "3": ["scorching_ray"],
-    "5": ["fireball"]
+    "1": [
+      "magic_missile",
+      "burning_hands",
+      "mage_armor"
+    ],
+    "3": [
+      "scorching_ray"
+    ],
+    "5": [
+      "fireball"
+    ]
   },
   "spell_slots_by_level": {
-    "1": {"1": 2},
-    "2": {"1": 3},
-    "3": {"1": 4, "2": 2},
-    "4": {"1": 4, "2": 3},
-    "5": {"1": 4, "2": 3, "3": 2}
+    "1": {
+      "1": 2
+    },
+    "2": {
+      "1": 3
+    },
+    "3": {
+      "1": 4,
+      "2": 2
+    },
+    "4": {
+      "1": 4,
+      "2": 3
+    },
+    "5": {
+      "1": 4,
+      "2": 3,
+      "3": 2
+    }
   },
   "features_by_level": {
-    "1": ["arcane_recovery"],
-    "4": ["ability_score_improvement"]
+    "1": [
+      "arcane_recovery",
+      "focus"
+    ],
+    "4": [
+      "ability_score_improvement"
+    ]
   },
   "features": {
-    "arcane_recovery": {"name": "Restauration magique", "type": "restore_slots", "slot_levels_total_half_level": true, "cooldown": 300.0},
-    "ability_score_improvement": {"name": "Amélioration de caractéristique", "type": "asi", "points": 2}
+    "arcane_recovery": {
+      "name": "Restauration magique",
+      "type": "restore_slots",
+      "slot_levels_total_half_level": true,
+      "cooldown": 300.0,
+      "description": "Récupère des emplacements de sorts (total de niveaux = moitié du niveau)."
+    },
+    "ability_score_improvement": {
+      "name": "Amélioration de caractéristique",
+      "type": "asi",
+      "points": 2
+    },
+    "focus": {
+      "name": "Concentration",
+      "type": "instant_cast",
+      "cooldown": 45.0,
+      "description": "Le prochain sort est lancé instantanément."
+    }
   }
 }

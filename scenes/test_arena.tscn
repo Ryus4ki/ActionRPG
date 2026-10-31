@@ -4,19 +4,19 @@
 [ext_resource type="PackedScene" path="res://scenes/chest.tscn" id="2_chest"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
-size = Vector3(30, 1, 30)
+size = Vector3(44, 1, 44)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(30, 1, 30)
+size = Vector3(44, 1, 44)
 
 [sub_resource type="StandardMaterial3D" id="Mat_floor"]
 albedo_color = Color(0.32, 0.32, 0.35, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wallx"]
-size = Vector3(30, 3, 0.5)
+size = Vector3(44, 3, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wallx"]
-size = Vector3(30, 3, 0.5)
+size = Vector3(44, 3, 0.5)
 
 [sub_resource type="BoxMesh" id="BoxMesh_pillar"]
 size = Vector3(1.2, 3, 1.2)
@@ -63,7 +63,7 @@ surface_material_override/0 = SubResource("Mat_floor")
 shape = SubResource("BoxShape3D_floor")
 
 [node name="WallN" type="StaticBody3D" parent="NavigationRegion3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -22)
 collision_layer = 1
 
 [node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallN"]
@@ -74,7 +74,7 @@ surface_material_override/0 = SubResource("Mat_wall")
 shape = SubResource("BoxShape3D_wallx")
 
 [node name="WallS" type="StaticBody3D" parent="NavigationRegion3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 22)
 collision_layer = 1
 
 [node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallS"]
@@ -85,7 +85,7 @@ surface_material_override/0 = SubResource("Mat_wall")
 shape = SubResource("BoxShape3D_wallx")
 
 [node name="WallE" type="StaticBody3D" parent="NavigationRegion3D"]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 15, 1.5, 0)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 22, 1.5, 0)
 collision_layer = 1
 
 [node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallE"]
@@ -96,7 +96,7 @@ surface_material_override/0 = SubResource("Mat_wall")
 shape = SubResource("BoxShape3D_wallx")
 
 [node name="WallW" type="StaticBody3D" parent="NavigationRegion3D"]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -15, 1.5, 0)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -22, 1.5, 0)
 collision_layer = 1
 
 [node name="Mesh" type="MeshInstance3D" parent="NavigationRegion3D/WallW"]
@@ -152,6 +152,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -11)
 
 [node name="skeleton_1" type="Marker3D" parent="Spawns"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
+
+[node name="goblin_archer_1" type="Marker3D" parent="Spawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 14)
+
+[node name="giant_spider_1" type="Marker3D" parent="Spawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, -17)
+
+[node name="ogre_1" type="Marker3D" parent="Spawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -2)
+
+[node name="goblin_boss_1" type="Marker3D" parent="Spawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 18)
 
 [node name="Enemies" type="Node3D" parent="."]
 

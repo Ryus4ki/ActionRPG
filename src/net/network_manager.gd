@@ -20,6 +20,22 @@ const GAME_SCENE := "res://scenes/game.tscn"
 const LOBBY_SCENE := "res://scenes/lobby.tscn"
 const MENU_SCENE := "res://scenes/main_menu.tscn"
 
+## Niveaux jouables : chemin de scène -> nom affiché. Le premier est le défaut.
+const LEVELS := {
+	"res://scenes/outdoor_village.tscn": "Brumeval (village de départ)",
+	"res://scenes/outdoor_prairie.tscn": "Prairie de Brumeval",
+	"res://scenes/outdoor_forest.tscn": "Forêt des Loups",
+	"res://scenes/dungeon_01.tscn": "Donjon 01 — Les Cavernes gobelines",
+	"res://scenes/test_arena.tscn": "Arène de test",
+}
+var level_path: String = LEVELS.keys()[0]
+## Point d'apparition demandé dans la zone (id du plan ; "default" sinon).
+var spawn_id := "default"
+## État des personnages du groupe entre deux zones (hôte) : peer_id -> dictionnaire (voir PlayerCharacter.save_state).
+var party_state: Dictionary = {}
+## Vrai au lancement de la partie (reprise à la position sauvegardée), faux après un changement de zone.
+var fresh_start := true
+
 var player_name := "Aventurier"
 var game_name := "Partie"
 var is_host := false
@@ -99,13 +115,39 @@ func start_game() -> void:
 	if not is_host:
 		return
 	_advertise = false  # plus de nouveaux joueurs une fois la partie lancée
-	_rpc_start_game.rpc()
+	_rpc_start_game.rpc(level_path)
 
 
 @rpc("authority", "call_local", "reliable")
-func _rpc_start_game() -> void:
+func _rpc_start_game(p_level_path: String) -> void:
+	level_path = p_level_path
+	spawn_id = "default"
+	fresh_start = true
+	# Hôte : chaque personnage arrive avec sa sauvegarde (envoyée par son propriétaire dans le lobby).
+	party_state = {}
+	if multiplayer.is_server():
+		for id in players:
+			var st: Dictionary = players[id].get("state", {})
+			if not st.is_empty():
+				party_state[id] = st
 	in_game = true
 	game_starting.emit()
+	get_tree().change_scene_to_file(GAME_SCENE)
+
+
+## Hôte : tout le groupe change de zone (les personnages sont conservés via party_state).
+func change_zone(p_level_path: String, p_spawn_id: String, states: Dictionary) -> void:
+	if not is_host:
+		return
+	party_state = states
+	_rpc_change_zone.rpc(p_level_path, p_spawn_id)
+
+
+@rpc("authority", "call_local", "reliable")
+func _rpc_change_zone(p_level_path: String, p_spawn_id: String) -> void:
+	fresh_start = false
+	level_path = p_level_path
+	spawn_id = p_spawn_id
 	get_tree().change_scene_to_file(GAME_SCENE)
 
 
@@ -143,6 +185,33 @@ func stop_lan_discovery() -> void:
 
 
 # ------------------------------------------------------------------ lobby
+
+## Personnage choisi au menu (Characters.current) : nom, classe, race et sauvegarde complète envoyés à l'hôte.
+func set_my_character(ready: bool) -> void:
+	var ch: Dictionary = Characters.current
+	if ch.is_empty():
+		set_my_choice("fighter", "human", ready)
+		return
+	var st: Dictionary = ch.get("state", {}).duplicate(true)
+	if not st.is_empty():
+		st["zone"] = ch.get("zone", "")
+	_rpc_set_character.rpc_id(1, {"name": ch.get("name", player_name), "class_id": ch.get("class_id", "fighter"),
+		"race_id": ch.get("race_id", "human"), "level": int(ch.get("level", 1)), "state": st}, ready)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _rpc_set_character(info: Dictionary, ready: bool) -> void:
+	if not multiplayer.is_server():
+		return
+	var id := multiplayer.get_remote_sender_id()
+	if id == 0:
+		id = 1
+	if players.has(id):
+		for k in ["name", "class_id", "race_id", "level", "state"]:
+			if info.has(k):
+				players[id][k] = info[k]
+		players[id].ready = ready
+		_broadcast_players()
 
 func set_my_choice(class_id: String, race_id: String, ready: bool) -> void:
 	_rpc_set_choice.rpc_id(1, class_id, race_id, ready)
@@ -209,7 +278,12 @@ func stop() -> void:
 	players.clear()
 
 
+## Retour au menu : la partie est sauvegardée d'abord (personnage de chacun).
 func leave_to_menu() -> void:
+	var game := get_tree().get_first_node_in_group("game")
+	if game and game.has_method("save_party_now"):
+		await game.save_party_now()
+	SessionLog.finish()
 	stop()
 	get_tree().change_scene_to_file(MENU_SCENE)
 
@@ -262,6 +336,7 @@ func _on_connection_failed() -> void:
 
 
 func _on_server_disconnected() -> void:
+	SessionLog.finish()
 	stop()
 	disconnected_from_host.emit()
 	get_tree().change_scene_to_file(MENU_SCENE)

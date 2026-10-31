@@ -1,0 +1,37 @@
+On est le 31 10 2026 et 09h49.
+
+		Il faudrait rectifier Les interfaces. La partie qui affiche Les commandes Elle s'affiche à chaque fois que je change de zone si Je l'ai fermé auparavant
+
+		Revoir la difficulté Dans le sens où dans Final Fantasy 11 Les lapins pouvaient déjà nous tuer Mais les combats étaient plus longs car il me semble qu'on avait plus de vie 		et eux aussi
+
+10 h
+
+		Il faudrait que pendant les Combat la petite fenêtre De sélection Reste affiché et ne se ferme plus une fois que je sélectionner L'action que je voulais.
+			
+		Au niveau de la création de personnages et de la sauvegarde Je voudrais que ce soit comme dans 1MMO. On crée le personnage et les sauvegardes se font autour du personnage 
+		On peut rejoindre la partie en réseau. D'un autre joueur avec le personnage qu'on souhaite Il faudrait qu'il y ait un coffre. Qui sont valables pour tous les personnages. 
+		Sur l'écran principal, on choisirait le personnage avec lequel on veut jouer. Et on reprendrait sa partie solo là où on en était. Si un autre joueur vous rejoint Et qu'il 
+		est plus loin dans l'aventure. Il sera bloqué par votre progression.
+
+		Il faudrait avoir les grands claviers sur la. Surtout la partie azerty Je voudrais que la commande A et e servent à faire pivoter la caméra F servirait toujours De moyens 
+		d'interaction Je voudrais que ce soit la même touche d'ailleurs que pour entrer Que ça ouvre l'interface de combat. Suivant ce que c'est sélectionné, si c'est un ennemi, 
+		l'interface de combat Si c'est un PNJ Dans ces cas-là, le dialogue et cetera. Qu'on puisse aussi sélectionner Un autre joueur pour ouvrir un autre interface qui pourra 
+		permettre par exemple des échanges.
+
+10h30
+
+		Je voudrais que la fenêtre de combat Se referme automatiquement dès que le combat se termine. À part si un autre monstre m'attaque dans ces cas-là Je veux que La sélection passe automatiquement sur l'ennemi qui m'attaque.
+		Je voudrais coucher de la fenêtre de Combat Il y ait une petite icône. Représentant le monstre qui m'attaque si il y en a plusieur je puise le selectioner rapidemen il faux Qu'il y ait leur barre de vie 
+
+		Au niveau de la progression Je voudrais Un système de classe comme finale fantaisi Mais avec le même type de progression, c'est-à-dire que le joueur puisse changer de classe à la volée simplement en changeant d'arme 
+		Le choix du joueur en début de partie Influence simplement le début C'est à dire au niveau de ses équipements et des stats de début. 
+
+11 h
+
+		Il faudrait que je puisse avancer Et diriger la caméra En appuyant sur la touche droite et gauche De la souris 
+		Dans la fenêtre de retour de combat Je n'ai pas vu inscrit le nombre d'expériences que le joueur gagne En tuant le monstre 
+
+11h40
+
+		Quand je change de zone, le personnage apparaît dans la mauvaise direction par rapport à la route Thierry En face de lui C'est surtout valable quand on sort du village ou quand on rentre du village 
+		Alors je ne sais pas si c'est l'entrée ou la sortie du village qui n'est pas dans la bonne direction ou si c'est le personnage qui ne fait pas la rotation dans la bonne direction. 

@@ -1,0 +1,20 @@
+{
+  "_comment": "Réglages globaux du rythme de combat façon FFXI (révision du 31/10 après retour de Grég : combats plus longs, PV plus gros des deux côtés, monstres plus précis, repos pour récupérer). Modifier ici plutôt que dans le code.",
+  "monster_hp_mult": 8.0,
+  "player_hp_mult": 6.0,
+  "monster_hit_bonus": 3,
+  "monster_attack_cooldown_mult": 1.6,
+  "player_weapon_delay_mult": 1.0,
+  "tp_per_hit_mult": 1.0,
+  "monster_tp_per_hit": 20,
+  "monster_tp_from_hit_taken": 10,
+  "monster_skill_windup": 1.5,
+  "spell_damage_mult": 1.25,
+  "healing_mult": 3.0,
+  "rest_delay": 4.0,
+  "rest_tick": 2.0,
+  "rest_heal_pct_start": 0.04,
+  "rest_heal_pct_step": 0.01,
+  "rest_heal_pct_max": 0.1,
+  "rest_slot_every": 12.0
+}

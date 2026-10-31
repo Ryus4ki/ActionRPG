@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/world/zone_line.gd" id="1_zl"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_zl"]
+size = Vector3(12, 4, 2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_post"]
+size = Vector3(0.4, 3.0, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="Mat_post"]
+albedo_color = Color(0.5, 0.4, 0.3, 1)
+
+[node name="ZoneLine" type="Area3D"]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_zl")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+shape = SubResource("BoxShape3D_zl")
+
+[node name="PostL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.5, 0)
+mesh = SubResource("BoxMesh_post")
+surface_material_override/0 = SubResource("Mat_post")
+
+[node name="PostR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.5, 0)
+mesh = SubResource("BoxMesh_post")
+surface_material_override/0 = SubResource("Mat_post")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6, 0)
+pixel_size = 0.006
+billboard = 1
+no_depth_test = true
+modulate = Color(0.8, 0.95, 1, 1)
+text = "→"
+font_size = 40
+outline_size = 10

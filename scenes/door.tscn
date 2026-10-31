@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/world/door.gd" id="1_door"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_panel"]
+size = Vector3(3.9, 2.8, 0.35)
+
+[sub_resource type="StandardMaterial3D" id="Mat_panel"]
+albedo_color = Color(0.36, 0.26, 0.16, 1)
+roughness = 0.9
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_panel"]
+size = Vector3(3.9, 2.8, 0.35)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_sync"]
+properties/0/path = NodePath(".:open")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:levers_pulled")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+
+[node name="Door" type="StaticBody3D"]
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1_door")
+
+[node name="Panel" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+mesh = SubResource("BoxMesh_panel")
+surface_material_override/0 = SubResource("Mat_panel")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+shape = SubResource("BoxShape3D_panel")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 0)
+pixel_size = 0.004
+billboard = 1
+no_depth_test = true
+modulate = Color(1, 0.8, 0.6, 1)
+text = "Porte"
+font_size = 36
+outline_size = 10
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_sync")

@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/world/trap.gd" id="1_trap"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_plate"]
+size = Vector3(2.4, 0.06, 2.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_spikes"]
+size = Vector3(2.2, 0.6, 2.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_area"]
+size = Vector3(2.3, 1.0, 2.3)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_sync"]
+properties/0/path = NodePath(".:fire_seq")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:revealed")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:disarmed")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+
+[node name="Trap" type="Area3D"]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_trap")
+
+[node name="Plate" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+mesh = SubResource("BoxMesh_plate")
+
+[node name="Spikes" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, 0)
+mesh = SubResource("BoxMesh_spikes")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_area")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+pixel_size = 0.004
+billboard = 1
+no_depth_test = true
+text = "Piège"
+font_size = 32
+outline_size = 10
+visible = false
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_sync")

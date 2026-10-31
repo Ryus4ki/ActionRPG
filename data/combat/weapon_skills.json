@@ -1,0 +1,48 @@
+{
+  "_comment": "Weapon skills (compétences d'arme) façon FFXI : disponibles à 100 TP, consomment tous les TP. multiplier = multiplicateur des dégâts par coup à 100 TP ; tp_scaling = multiplicateur supplémentaire à 300 TP (interpolé).",
+  "fast_blade": {
+    "name": "Lame rapide",
+    "weapon": "longsword",
+    "hits": 2,
+    "multiplier": 1.0,
+    "tp_scaling": 0.5,
+    "description": "Deux coups rapides."
+  },
+  "raging_axe": {
+    "name": "Hache enragée",
+    "weapon": "greataxe",
+    "hits": 1,
+    "multiplier": 2.5,
+    "tp_scaling": 1.0,
+    "description": "Un coup dévastateur.",
+    "knockback": 2.0
+  },
+  "shield_break": {
+    "name": "Brise-garde",
+    "weapon": "mace",
+    "hits": 1,
+    "multiplier": 1.75,
+    "tp_scaling": 0.75,
+    "description": "Coup lourd qui étourdit (ennemi ralenti 3 s).",
+    "condition": "restrained",
+    "condition_duration": 3.0
+  },
+  "viper_bite": {
+    "name": "Morsure de vipère",
+    "weapon": "dagger",
+    "hits": 1,
+    "multiplier": 1.5,
+    "tp_scaling": 0.75,
+    "description": "Frappe précise avec avantage au jet d'attaque.",
+    "advantage": true
+  },
+  "heavy_swing": {
+    "name": "Moulinet",
+    "weapon": "quarterstaff",
+    "hits": 1,
+    "multiplier": 1.5,
+    "tp_scaling": 0.5,
+    "description": "Balayage qui repousse l'ennemi.",
+    "knockback": 2.5
+  }
+}

@@ -10,6 +10,10 @@ extends Area3D
 @export var homing := false
 @export var explode_on_arrival := false  # boule de feu : explose au point visé
 
+## Projectile hostile (archer gobelin, toile) : touche les joueurs, résolu comme une attaque d'arme.
+var hostile := false
+var attack: Dictionary = {}
+
 var direction := Vector3.FORWARD
 var caster_path := NodePath()
 var target_path := NodePath()      # cible (homing) ou point d'arrivée
@@ -36,6 +40,8 @@ func _ready() -> void:
 	mesh.material_override = mat
 	light.light_color = color
 	($Shape as CollisionShape3D).shape.radius = radius
+	# Couches : monde (1) + joueurs (2) pour les tirs ennemis, monde (1) + ennemis (4) sinon.
+	collision_mask = 3 if hostile else 5
 	if not multiplayer.is_server():
 		set_physics_process(false)
 
@@ -58,6 +64,8 @@ func _physics_process(delta: float) -> void:
 	var from := global_position
 	var to := from + direction * (step + radius)
 	var query := PhysicsRayQueryParameters3D.create(from, to, collision_mask)
+	# Au corps à corps le projectile naît DANS la capsule de la cible : sans ça, il la traversait sans la toucher.
+	query.hit_from_inside = true
 	var caster := get_node_or_null(caster_path)
 	if caster:
 		query.exclude = [caster.get_rid()]
@@ -80,7 +88,10 @@ func _on_hit(body: Node) -> void:
 		_explode()
 		return
 	if body is Creature:
-		if body.is_in_group("enemies") and body.health.is_alive():
+		if hostile:
+			if body.is_in_group("players") and body.health.is_alive() and caster:
+				CombatResolver.weapon_attack(caster, body, attack)
+		elif body.is_in_group("enemies") and body.health.is_alive():
 			SpellCaster.projectile_hit(caster, body, spell_id, slot_level)
 		_finish()
 	else:

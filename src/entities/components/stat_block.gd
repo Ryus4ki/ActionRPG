@@ -16,6 +16,7 @@ var level := 1:
 			level_changed.emit(level)
 var xp := 0
 var hit_die := 8
+var class_hp_mult := 1.0  # « hp_mult » de la classe (le magicien encaisse un peu plus qu'en D&D, façon FFXI)
 var speed := 30  # pieds par round (SRD) → converti en m/s par la créature
 
 var base_ac := 10          # (monstres / compat) base sans armure
@@ -52,14 +53,23 @@ func setup_from_class(p_class_id: String, p_race_id: String) -> void:
 	abilities = cls.get("default_abilities", abilities).duplicate()
 	for a in race.get("ability_bonuses", {}):
 		abilities[a] = abilities.get(a, 10) + race["ability_bonuses"][a]
-	hit_die = cls.get("hit_die", 8)
 	speed = race.get("speed", 30)
-	save_proficiencies = cls.get("saving_throws", [])
 	for trait_data in race.get("traits", []):
 		for r in trait_data.get("damage_resistances", []):
 			damage_resistances.append(damage_type_from_string(r))
-	# Style de combat Défense : +1 CA si armure portée (appliqué par l'équipement en M3 ;
-	# pour l'instant on l'applique si la classe a la capacité au niveau 1).
+	apply_job(p_class_id)
+
+
+## Job façon FFXI : ce qui dépend du job actuel (dé de vie, sauvegardes, style Défense). Les caractéristiques
+## (FOR, DEX…) restent celles de la classe choisie à la création + race.
+func apply_job(job_id: String) -> void:
+	var cls: Dictionary = GameData.player_class(job_id)
+	if cls.is_empty():
+		return
+	class_id = job_id
+	hit_die = cls.get("hit_die", 8)
+	class_hp_mult = float(cls.get("hp_mult", 1.0))
+	save_proficiencies = cls.get("saving_throws", [])
 	var feats: Array = cls.get("features_by_level", {}).get("1", [])
 	defense_style = "fighting_style_defense" in feats
 
@@ -116,6 +126,10 @@ func armor_class() -> int:
 	return ac
 
 
+## Bonus d'attaque temporaire (conditions : affaibli −2, renforcé +2…), géré par la créature.
+var temp_attack_bonus := 0
+
+
 func attack_bonus(ability: String = "str", magic_bonus: int = 0) -> int:
 	if fixed_attack_bonus > -999:
 		return fixed_attack_bonus + magic_bonus
@@ -143,8 +157,8 @@ func max_hp() -> int:
 		var hp: int = m.get("hp_fixed", 10)
 		if m.get("is_boss", false):
 			hp = int(hp * m.get("hp_boss_multiplier", 1.0))
-		return hp
-	return Rules.max_hp(hit_die, level, ability_mod("con"))
+		return maxi(1, int(round(hp * GameData.bal("monster_hp_mult"))))
+	return maxi(1, int(round(Rules.max_hp(hit_die, level, ability_mod("con")) * GameData.bal("player_hp_mult") * class_hp_mult)))
 
 
 ## Vitesse de déplacement en m/s : 30 pieds/round (6 s) ≈ 1,5 m/s en marche ;

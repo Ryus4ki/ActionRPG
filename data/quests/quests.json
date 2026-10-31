@@ -1,0 +1,36 @@
+{
+  "_comment": "Quêtes. objective.type : kill (monster, count) | collect (item, count) | talk. requires : quêtes à avoir rendues avant.",
+  "q_rabbits": {
+    "title": "Les lapins du potager",
+    "giver": "elder",
+    "text": "Les lapins des prés dévorent nos choux. Va en chasser cinq dans la prairie, à l'est du village.",
+    "objective": {"type": "kill", "monster": "rabbit", "count": 5},
+    "reward": {"gold": 30, "xp": 40, "items": [{"id": "potion_healing", "qty": 2}]},
+    "turn_in_text": "Cinq lapins ! Le potager te doit une fière chandelle. Tiens, pour ta peine."
+  },
+  "q_honey": {
+    "title": "Le miel des géantes",
+    "giver": "innkeeper",
+    "text": "Les abeilles géantes de la prairie font un miel incomparable. Rapporte-m'en trois rayons et je te paierai bien.",
+    "objective": {"type": "collect", "item": "honey", "count": 3},
+    "reward": {"gold": 45, "xp": 50},
+    "turn_in_text": "Quel parfum ! Mes clients vont adorer. Voici ta récompense."
+  },
+  "q_wolves": {
+    "title": "La meute de la forêt",
+    "giver": "elder",
+    "requires": ["q_rabbits"],
+    "text": "Des loups rôdent dans la forêt au nord de la prairie et s'en prennent aux troupeaux. Abats-en trois, mais va-y à deux : ils chassent en meute.",
+    "objective": {"type": "kill", "monster": "wolf", "count": 3},
+    "reward": {"gold": 80, "xp": 120, "items": [{"id": "potion_greater_healing", "qty": 1}]},
+    "turn_in_text": "Trois loups… Tu es taillé pour l'aventure. Les gobelins des cavernes, au fond de la forêt, seront ton prochain défi."
+  },
+  "q_boar": {
+    "title": "Défenses de sanglier",
+    "giver": "smith",
+    "text": "Avec des défenses de sanglier, je te ferai une belle garde d'épée. Rapporte-m'en deux, les sangliers vivent en lisière de forêt.",
+    "objective": {"type": "collect", "item": "boar_tusk", "count": 2},
+    "reward": {"gold": 40, "xp": 60, "items": [{"id": "longsword", "qty": 1, "rarity": "uncommon"}]},
+    "turn_in_text": "De belles défenses. Tiens, cette lame est pour toi."
+  }
+}

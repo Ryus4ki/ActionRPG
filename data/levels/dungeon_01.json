@@ -1,0 +1,641 @@
+{
+  "_comment": "Donjon 01 — grille de cellules de 4 m. x vers l'est, z vers le sud (négatif = nord). Les salles sont des rectangles [x, z, largeur, profondeur] en cellules ; les couloirs des listes de cellules. Les murs sont générés automatiquement autour des cellules de sol.",
+  "name": "Les Cavernes gobelines",
+  "cell": 4.0,
+  "rooms": [
+    {
+      "id": "entrance",
+      "rect": [
+        0,
+        0,
+        3,
+        3
+      ],
+      "type": "start",
+      "floor": "#4a4a52"
+    },
+    {
+      "id": "guard",
+      "rect": [
+        -1,
+        -7,
+        5,
+        4
+      ],
+      "type": "fight",
+      "floor": "#45454c"
+    },
+    {
+      "id": "west",
+      "rect": [
+        -9,
+        -7,
+        4,
+        4
+      ],
+      "type": "fight",
+      "floor": "#3e4a42"
+    },
+    {
+      "id": "east",
+      "rect": [
+        8,
+        -7,
+        4,
+        4
+      ],
+      "type": "fight",
+      "floor": "#4a4440"
+    },
+    {
+      "id": "rest",
+      "rect": [
+        -1,
+        -13,
+        5,
+        3
+      ],
+      "type": "rest",
+      "floor": "#4a4638"
+    },
+    {
+      "id": "ogre",
+      "rect": [
+        -2,
+        -20,
+        7,
+        5
+      ],
+      "type": "fight",
+      "floor": "#403c44"
+    },
+    {
+      "id": "boss",
+      "rect": [
+        -3,
+        -31,
+        9,
+        9
+      ],
+      "type": "boss",
+      "floor": "#4a3838"
+    }
+  ],
+  "corridors": [
+    {
+      "id": "c_entrance_guard",
+      "cells": [
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          -2
+        ],
+        [
+          1,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": "c_guard_west",
+      "cells": [
+        [
+          -2,
+          -5
+        ],
+        [
+          -3,
+          -5
+        ],
+        [
+          -4,
+          -5
+        ],
+        [
+          -5,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": "c_guard_east",
+      "cells": [
+        [
+          4,
+          -5
+        ],
+        [
+          5,
+          -5
+        ],
+        [
+          6,
+          -5
+        ],
+        [
+          7,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": "c_guard_rest",
+      "cells": [
+        [
+          1,
+          -8
+        ],
+        [
+          1,
+          -9
+        ],
+        [
+          1,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": "c_rest_ogre",
+      "cells": [
+        [
+          1,
+          -14
+        ],
+        [
+          1,
+          -15
+        ]
+      ]
+    },
+    {
+      "id": "c_ogre_boss",
+      "cells": [
+        [
+          1,
+          -21
+        ],
+        [
+          1,
+          -22
+        ]
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "id": "boss_door",
+      "cell": [
+        1,
+        -22
+      ],
+      "axis": "x",
+      "levers": [
+        "lever_west",
+        "lever_east"
+      ],
+      "label": "Porte du repaire"
+    }
+  ],
+  "levers": [
+    {
+      "id": "lever_west",
+      "cell": [
+        -8,
+        -7
+      ],
+      "label": "Levier ouest"
+    },
+    {
+      "id": "lever_east",
+      "cell": [
+        11,
+        -7
+      ],
+      "label": "Levier est"
+    }
+  ],
+  "traps": [
+    {
+      "id": "spikes_east",
+      "kind": "spikes",
+      "zone": "east",
+      "cells": [
+        [
+          5,
+          -5
+        ],
+        [
+          6,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": "flames_rest",
+      "kind": "flames",
+      "zone": "north",
+      "cells": [
+        [
+          1,
+          -9
+        ]
+      ]
+    }
+  ],
+  "puzzles": [
+    {
+      "id": "runes_east",
+      "zone": "east",
+      "riddle": "D'abord vient la nuit, puis se lève le jour, et enfin ce qui veille sur les deux.",
+      "runes": [
+        {
+          "name": "Soleil",
+          "cell": [
+            3,
+            -7
+          ],
+          "wall": "e"
+        },
+        {
+          "name": "Lune",
+          "cell": [
+            3,
+            -6
+          ],
+          "wall": "e"
+        },
+        {
+          "name": "Étoile",
+          "cell": [
+            3,
+            -4
+          ],
+          "wall": "e"
+        }
+      ],
+      "order": [
+        1,
+        0,
+        2
+      ],
+      "plaque": {
+        "cell": [
+          2,
+          -7
+        ],
+        "wall": "n"
+      }
+    },
+    {
+      "id": "runes_north",
+      "zone": "north",
+      "riddle": "Étouffe ce qui brûle sous ce qui coule, puis recouvre le tout de ce qui nourrit les racines.",
+      "runes": [
+        {
+          "name": "Terre",
+          "cell": [
+            -1,
+            -7
+          ],
+          "wall": "w"
+        },
+        {
+          "name": "Feu",
+          "cell": [
+            -1,
+            -6
+          ],
+          "wall": "w"
+        },
+        {
+          "name": "Eau",
+          "cell": [
+            -1,
+            -4
+          ],
+          "wall": "w"
+        }
+      ],
+      "order": [
+        1,
+        2,
+        0
+      ],
+      "plaque": {
+        "cell": [
+          0,
+          -7
+        ],
+        "wall": "n"
+      }
+    }
+  ],
+  "campfires": [
+    {
+      "id": "campfire_rest",
+      "cell": [
+        1,
+        -12
+      ]
+    }
+  ],
+  "chests": [
+    {
+      "id": "chest_west",
+      "cell": [
+        -9,
+        -4
+      ]
+    },
+    {
+      "id": "chest_boss",
+      "cell": [
+        5,
+        -31
+      ]
+    }
+  ],
+  "props": [
+    {
+      "model": "sm_pillar",
+      "cell": [
+        -1,
+        -19
+      ]
+    },
+    {
+      "model": "sm_pillar",
+      "cell": [
+        3,
+        -19
+      ]
+    },
+    {
+      "model": "sm_pillar",
+      "cell": [
+        -1,
+        -17
+      ]
+    },
+    {
+      "model": "sm_pillar",
+      "cell": [
+        3,
+        -17
+      ]
+    },
+    {
+      "model": "sm_pillar",
+      "cell": [
+        -2,
+        -29
+      ]
+    },
+    {
+      "model": "sm_pillar",
+      "cell": [
+        4,
+        -29
+      ]
+    },
+    {
+      "model": "sm_pillar",
+      "cell": [
+        -2,
+        -25
+      ]
+    },
+    {
+      "model": "sm_pillar",
+      "cell": [
+        4,
+        -25
+      ]
+    },
+    {
+      "model": "sm_altar",
+      "cell": [
+        1,
+        -30
+      ]
+    },
+    {
+      "model": "sm_barrel",
+      "cell": [
+        -1,
+        -11
+      ],
+      "offset": [
+        -1.2,
+        0,
+        -1.0
+      ]
+    },
+    {
+      "model": "sm_barrel",
+      "cell": [
+        -1,
+        -11
+      ],
+      "offset": [
+        -0.5,
+        0,
+        -1.3
+      ]
+    },
+    {
+      "model": "sm_crate",
+      "cell": [
+        3,
+        -11
+      ],
+      "offset": [
+        1.0,
+        0,
+        -1.0
+      ]
+    },
+    {
+      "model": "sm_crate",
+      "cell": [
+        0,
+        2
+      ],
+      "offset": [
+        -1.2,
+        0,
+        1.0
+      ]
+    },
+    {
+      "model": "sm_barrel",
+      "cell": [
+        2,
+        2
+      ],
+      "offset": [
+        1.2,
+        0,
+        1.0
+      ]
+    },
+    {
+      "model": "sm_barrel",
+      "cell": [
+        3,
+        -4
+      ],
+      "offset": [
+        1.3,
+        0,
+        -1.3
+      ]
+    },
+    {
+      "model": "sm_crate",
+      "cell": [
+        -1,
+        -4
+      ],
+      "offset": [
+        -1.3,
+        0,
+        -1.3
+      ]
+    }
+  ],
+  "spawns": [
+    {
+      "monster": "goblin",
+      "cell": [
+        0,
+        -6
+      ]
+    },
+    {
+      "monster": "goblin",
+      "cell": [
+        2,
+        -6
+      ]
+    },
+    {
+      "monster": "goblin",
+      "cell": [
+        3,
+        -5
+      ]
+    },
+    {
+      "monster": "goblin_archer",
+      "cell": [
+        1,
+        -7
+      ]
+    },
+    {
+      "monster": "giant_spider",
+      "cell": [
+        -7,
+        -6
+      ]
+    },
+    {
+      "monster": "goblin",
+      "cell": [
+        -8,
+        -5
+      ]
+    },
+    {
+      "monster": "goblin_archer",
+      "cell": [
+        10,
+        -7
+      ]
+    },
+    {
+      "monster": "goblin_archer",
+      "cell": [
+        9,
+        -4
+      ]
+    },
+    {
+      "monster": "skeleton",
+      "cell": [
+        10,
+        -5
+      ]
+    },
+    {
+      "monster": "ogre",
+      "cell": [
+        1,
+        -18
+      ]
+    },
+    {
+      "monster": "skeleton",
+      "cell": [
+        -1,
+        -18
+      ]
+    },
+    {
+      "monster": "skeleton",
+      "cell": [
+        3,
+        -18
+      ]
+    },
+    {
+      "monster": "goblin_boss",
+      "cell": [
+        1,
+        -28
+      ]
+    },
+    {
+      "monster": "goblin",
+      "cell": [
+        -1,
+        -27
+      ]
+    },
+    {
+      "monster": "goblin",
+      "cell": [
+        3,
+        -27
+      ]
+    }
+  ],
+  "player_spawns": [
+    [
+      1,
+      1
+    ],
+    [
+      1,
+      2
+    ]
+  ],
+  "torches_per_room": 4,
+  "zone_lines": [
+    {
+      "cell": [
+        1,
+        2
+      ],
+      "side": "s",
+      "target": "res://scenes/outdoor_forest.tscn",
+      "spawn": "from_dungeon",
+      "label": "Sortie — Forêt des Loups"
+    }
+  ]
+}

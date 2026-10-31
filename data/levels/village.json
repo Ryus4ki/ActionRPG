@@ -1,0 +1,52 @@
+{
+  "_comment": "Village de départ. Coordonnées en mètres, origine au centre. size = [largeur x, profondeur z]. Les côtés : n (z négatif), s, w (x négatif), e.",
+  "name": "Brumeval",
+  "type": "village",
+  "size": [80, 80],
+  "seed": 11,
+  "ground": "#5e7d3c",
+  "patch_color": "#6d8a44",
+  "road_color": "#9a8a6a",
+  "edge_color": "#3a5a2a",
+  "patches": 30,
+  "roads": [
+    {"from": [0, -30], "to": [0, 30], "width": 5},
+    {"from": [-30, 0], "to": [38, 0], "width": 5}
+  ],
+  "buildings": [
+    {"pos": [-16, -14], "size": [10, 4, 8], "color": "#9a7a5a", "roof": "#6a3a2a"},
+    {"pos": [16, -14], "size": [9, 4, 9], "color": "#8a7a6a", "roof": "#5a4a3a"},
+    {"pos": [-16, 14], "size": [8, 3.5, 8], "color": "#a08a6a", "roof": "#7a4a2a"},
+    {"pos": [16, 14], "size": [11, 4.5, 8], "color": "#8a6a4a", "roof": "#4a3a2a"},
+    {"pos": [-28, 0], "size": [6, 3, 6], "color": "#9a8a7a", "roof": "#6a5a4a"}
+  ],
+  "props": [
+    {"kind": "tree", "count": 14, "min_height": 4.5, "max_height": 7.0, "color": "#2f6e2a"},
+    {"kind": "bush", "count": 12},
+    {"kind": "flowers", "count": 10},
+    {"kind": "fence", "count": 6, "length": 5.0},
+    {"kind": "rock", "count": 4}
+  ],
+  "npcs": [
+    {"id": "elder", "name": "Ancienne Maëlle", "role": "quest", "pos": [-5, -6], "rot": 160, "tint": "#8a6aa0",
+     "lines": ["Bienvenue à Brumeval, voyageur. Le village a bien besoin de bras courageux."],
+     "quests": ["q_rabbits", "q_wolves"]},
+    {"id": "smith", "name": "Brenn le forgeron", "role": "merchant", "pos": [10, -8], "rot": 200, "tint": "#8a4a30",
+     "lines": ["Des lames, des mailles, des boucliers. Tout ce qu'il faut pour revenir entier."],
+     "shop": ["longsword", "mace", "dagger", "greataxe", "quarterstaff", "shield", "leather_armor", "scale_mail"],
+     "quests": ["q_boar"]},
+    {"id": "innkeeper", "name": "Lise l'aubergiste", "role": "merchant", "pos": [-10, 8], "rot": 30, "tint": "#c08a50",
+     "lines": ["Une potion avant de partir ? La prairie n'est pas aussi tranquille qu'elle en a l'air."],
+     "shop": ["potion_healing", "potion_greater_healing", "honey"],
+     "quests": ["q_honey"]},
+    {"id": "guard", "name": "Garde Tomas", "role": "talk", "pos": [30, 3], "rot": 90, "tint": "#506080",
+     "lines": ["La prairie est à l'est, la forêt au-delà. Ne t'aventure pas vers les cavernes seul.", "Appuie sur Tab pour cibler, Entrée pour le menu de combat."]}
+  ],
+  "zone_lines": [
+    {"side": "e", "at": 0, "target": "res://scenes/outdoor_prairie.tscn", "spawn": "from_village", "label": "Prairie de Brumeval"}
+  ],
+  "campfires": [{"id": "village_fire", "pos": [4, 4]}],
+  "shared_chests": [{"id": "shared_chest", "pos": [-6.5, 10], "rot": 20}],
+  "player_spawns": {"default": [-2, 0, 2], "from_prairie": [34, 0, 0]},
+  "spawns": []
+}

@@ -1,0 +1,50 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/world/lever.gd" id="1_lever"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_base"]
+size = Vector3(0.5, 0.5, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="Mat_base"]
+albedo_color = Color(0.3, 0.3, 0.32, 1)
+
+[sub_resource type="CylinderMesh" id="Cyl_handle"]
+top_radius = 0.03
+bottom_radius = 0.04
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_handle"]
+albedo_color = Color(0.7, 0.55, 0.2, 1)
+metallic = 0.6
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_sync"]
+properties/0/path = NodePath(".:pulled")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[node name="Lever" type="StaticBody3D"]
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1_lever")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+mesh = SubResource("BoxMesh_base")
+surface_material_override/0 = SubResource("Mat_base")
+
+[node name="Handle" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0.15)
+mesh = SubResource("Cyl_handle")
+surface_material_override/0 = SubResource("Mat_handle")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
+pixel_size = 0.004
+billboard = 1
+no_depth_test = true
+text = "Levier"
+font_size = 36
+outline_size = 10
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_sync")

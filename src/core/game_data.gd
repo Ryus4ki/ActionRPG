@@ -10,6 +10,9 @@ var monsters: Dictionary = {}
 var items: Dictionary = {}
 var rarities: Dictionary = {}
 var loot_tables: Dictionary = {}
+var weapon_skills: Dictionary = {}
+var balance: Dictionary = {}
+var quests: Dictionary = {}
 
 
 func _ready() -> void:
@@ -26,6 +29,12 @@ func load_all() -> void:
 	items.erase("_rarity_table")
 	loot_tables = _load_file("res://data/items/loot_tables.json")
 	loot_tables.erase("_comment")
+	weapon_skills = _load_file("res://data/combat/weapon_skills.json")
+	weapon_skills.erase("_comment")
+	balance = _load_file("res://data/combat/balance.json")
+	balance.erase("_comment")
+	quests = _load_file("res://data/quests/quests.json")
+	quests.erase("_comment")
 
 
 ## Charge chaque .json d'un dossier ; la clé est le champ "id" (ou le nom du fichier).
@@ -112,3 +121,18 @@ func validate() -> Array[String]:
 		if s.has("damage") and Dice.parse(s["damage"]).sides == 0:
 			errors.append("Sort %s : dés invalides '%s'" % [sid, s["damage"]])
 	return errors
+
+
+func weapon_skill(id: String) -> Dictionary:
+	return weapon_skills.get(id, {})
+
+
+## Réglage d'équilibrage global (data/combat/balance.json), avec valeur par défaut.
+func bal(key: String, default_value: float = 1.0) -> float:
+	return float(balance.get(key, default_value))
+
+
+## Horloge de jeu (s) : suit Engine.time_scale (banc d'équilibrage accéléré) ; = temps réel en jeu normal.
+## L'échelle doit rester constante pendant une partie (elle multiplie le temps écoulé depuis le lancement).
+func now() -> float:
+	return Time.get_ticks_msec() / 1000.0 * Engine.time_scale

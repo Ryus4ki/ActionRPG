@@ -38,6 +38,11 @@ var anim_seq := 0:
 ## Garde active (bouclier levé) : voir blocks_attack_from(). Répliqué.
 var is_blocking := false
 
+## Conditions temporaires (hôte) : nom -> instant de fin (s). Ex. "restrained" (entravé : immobile).
+var conditions: Dictionary = {}
+## Vitesse externe (recul d'un coup de massue…), amortie chaque image. Hôte.
+var knock_velocity := Vector3.ZERO
+
 var _current_anim := ""
 var _one_shot_until := 0.0  # temps (s) jusqu'auquel une animation non bouclée a priorité
 var _remote_applied_seq := -1
@@ -59,11 +64,15 @@ func is_server() -> bool:
 
 
 func _load_model() -> void:
-	var scene: PackedScene = load(model_path)
-	if scene == null:
-		push_error("Modèle introuvable : " + model_path)
-		return
-	model = scene.instantiate()
+	if model_path.begins_with("proc:"):
+		# Modèle procédural (animaux) : voir QuadrupedModel.
+		model = QuadrupedModel.build(model_path.trim_prefix("proc:"))
+	else:
+		var scene: PackedScene = load(model_path)
+		if scene == null:
+			push_error("Modèle introuvable : " + model_path)
+			return
+		model = scene.instantiate()
 	model_root.add_child(model)
 	# Blender exporte le personnage face à +Z (Godot) ; notre avant est -Z.
 	model.rotation_degrees.y = 180.0
@@ -127,7 +136,7 @@ func attach_to_bone(bone: String, item_model_path: String, local_offset := Trans
 func play_anim(name: String, blend := 0.15, force := false) -> void:
 	if anim == null or not anim.has_animation(name):
 		return
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := GameData.now()
 	if not force and now < _one_shot_until and name in LOOPING_ANIMS:
 		return
 	if name == _current_anim and name in LOOPING_ANIMS:
@@ -138,6 +147,7 @@ func play_anim(name: String, blend := 0.15, force := false) -> void:
 	if name not in LOOPING_ANIMS:
 		anim_seq += 1
 		_one_shot_until = now + anim.get_animation(name).length
+		Sound.on_anim(self, name)
 
 
 ## Client : applique l'animation reçue de l'hôte.
@@ -149,10 +159,94 @@ func _apply_remote_anim() -> void:
 	_current_anim = anim_name
 	_remote_applied_seq = anim_seq
 	anim.play(anim_name, 0.1)
+	if anim_name not in LOOPING_ANIMS:
+		Sound.on_anim(self, anim_name)
 
 
 func is_busy() -> bool:
-	return Time.get_ticks_msec() / 1000.0 < _one_shot_until
+	return GameData.now() < _one_shot_until
+
+
+## Applique une condition pendant `duration` secondes (hôte).
+func apply_condition(cond: String, duration: float) -> void:
+	var until := GameData.now() + duration
+	conditions[cond] = maxf(conditions.get(cond, 0.0), until)
+
+
+func has_condition(cond: String) -> bool:
+	if not conditions.has(cond):
+		return false
+	if GameData.now() >= conditions[cond]:
+		conditions.erase(cond)
+		return false
+	return true
+
+
+## Entravé (toile d'araignée) : ne peut pas se déplacer, peut encore attaquer.
+func is_restrained() -> bool:
+	return has_condition("restrained")
+
+
+## Étourdi : ne peut ni agir ni se déplacer.
+func is_stunned() -> bool:
+	return has_condition("stunned")
+
+
+## ±2 à l'attaque selon les conditions (affaibli / renforcé).
+func condition_attack_bonus() -> int:
+	var b := 0
+	if has_condition("weakened"):
+		b -= 2
+	if has_condition("strengthened"):
+		b += 2
+	return b
+
+
+## Noms affichables des conditions actives (pour le HUD).
+func condition_names() -> Array[String]:
+	var out: Array[String] = []
+	for c in conditions.keys():
+		if has_condition(c):
+			out.append(CONDITION_NAMES.get(c, c))
+	return out
+
+
+const CONDITION_NAMES := {"restrained": "Entravé", "stunned": "Étourdi", "poisoned": "Empoisonné",
+	"blinded": "Aveuglé", "weakened": "Affaibli", "strengthened": "Renforcé"}
+var _poison_tick := 0.0
+
+
+## Hôte : effets périodiques des conditions (poison : 1d4 toutes les 2 s).
+func tick_conditions(delta: float) -> void:
+	if has_condition("poisoned") and health.is_alive():
+		_poison_tick += delta
+		if _poison_tick >= 2.0:
+			_poison_tick = 0.0
+			var dmg := Dice.roll(1, 4, CombatResolver.rng)
+			health.take_damage(dmg, StatBlock.damage_type_from_string("poison"), false, null)
+			EventBus.hit_resolved.emit(self, {"attacker": null, "target": self, "attack_name": "Poison", "hit": true,
+				"auto_hit": true, "crit": false, "fumble": false, "damage": dmg,
+				"damage_type": StatBlock.damage_type_from_string("poison")})
+	else:
+		_poison_tick = 0.0
+
+
+## Pousse la créature dans `dir` (horizontal) à `strength` m/s, amorti ensuite.
+func apply_knockback(dir: Vector3, strength: float) -> void:
+	dir.y = 0.0
+	if dir.length_squared() < 0.0001:
+		return
+	knock_velocity = dir.normalized() * strength
+
+
+## À appeler avant move_and_slide : ajoute le recul à la vitesse et l'amortit.
+func apply_knock(delta: float) -> void:
+	if knock_velocity.length_squared() < 0.01:
+		knock_velocity = Vector3.ZERO
+		return
+	velocity.x += knock_velocity.x
+	velocity.z += knock_velocity.z
+	knock_velocity = knock_velocity.move_toward(Vector3.ZERO, 12.0 * delta)
 
 
 func apply_gravity(delta: float) -> void:

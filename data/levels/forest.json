@@ -1,0 +1,32 @@
+{
+  "name": "Forêt des Loups",
+  "type": "forest",
+  "size": [120, 100],
+  "seed": 37,
+  "ground": "#3f5a2e",
+  "patch_color": "#2f4a22",
+  "edge_color": "#1f3016",
+  "patches": 50,
+  "roads": [{"from": [10, 48], "to": [10, 10], "width": 3}, {"from": [10, 10], "to": [0, -46], "width": 3}],
+  "buildings": [],
+  "props": [
+    {"kind": "tree", "count": 90, "min_height": 6.0, "max_height": 10.0, "color": "#234e22", "conifer": true},
+    {"kind": "stump", "count": 12},
+    {"kind": "bush", "count": 30, "color": "#2f5a28"},
+    {"kind": "rock", "count": 14}
+  ],
+  "npcs": [],
+  "zone_lines": [
+    {"side": "s", "at": 10, "target": "res://scenes/outdoor_prairie.tscn", "spawn": "from_forest", "label": "Prairie de Brumeval"},
+    {"side": "n", "at": 0, "target": "res://scenes/dungeon_01.tscn", "spawn": "default", "label": "Cavernes gobelines"}
+  ],
+  "campfires": [{"id": "forest_fire", "pos": [12, 14]}],
+  "chests": [],
+  "player_spawns": {"default": [10, 0, 44], "from_prairie": [10, 0, 44], "from_dungeon": [0, 0, -42]},
+  "spawns": [
+    {"monster": "wolf", "count": 5, "area": [-50, -30, -10, 30], "respawn": 90},
+    {"monster": "boar", "count": 4, "area": [20, -20, 50, 30], "respawn": 90},
+    {"monster": "wolf", "count": 2, "area": [-15, -40, 15, -20], "respawn": 90},
+    {"monster": "goblin", "count": 2, "area": [-8, -46, 8, -36], "respawn": 120}
+  ]
+}

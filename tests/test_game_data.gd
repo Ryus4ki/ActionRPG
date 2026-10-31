@@ -14,7 +14,7 @@ func test_tables_loaded() -> void:
 	assert_eq(gd.classes.size(), 2, "2 classes")
 	assert_eq(gd.races.size(), 3, "3 races")
 	assert_eq(gd.spells.size(), 6, "6 sorts")
-	assert_eq(gd.monsters.size(), 6, "6 monstres")
+	assert_eq(gd.monsters.size(), 10, "10 monstres")
 	assert_true(gd.items.size() >= 12, "≥ 12 objets")
 	assert_eq(gd.rarities.size(), 3, "3 raretés")
 	assert_false(gd.items.has("_rarity_table"), "table de rareté extraite")

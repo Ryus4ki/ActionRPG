@@ -10,6 +10,8 @@ extends Control
 @onready var ip_row: HBoxContainer = %IpRow
 @onready var ip_label: Label = %IpLabel
 @onready var copy_button: Button = %CopyIpButton
+@onready var level_row: HBoxContainer = %LevelRow
+@onready var level_option: OptionButton = %LevelOption
 
 var _class_ids: Array[String] = []
 var _race_ids: Array[String] = []
@@ -17,6 +19,7 @@ var _race_ids: Array[String] = []
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	theme = UiTheme.get_theme()
 	for cid in GameData.classes:
 		_class_ids.append(cid)
 		class_option.add_item(GameData.classes[cid].get("name", cid))
@@ -30,11 +33,37 @@ func _ready() -> void:
 	%LeaveButton.pressed.connect(func(): Net.leave_to_menu())
 	Net.players_changed.connect(_refresh)
 	start_button.visible = Net.is_host
+	level_row.visible = Net.is_host
+	var level_paths: Array = Net.LEVELS.keys()
+	# Personnage façon MMO : classe et race sont celles du personnage ; l'hôte reprend là où il s'était arrêté.
+	if Characters.has_current():
+		class_option.get_parent().visible = false
+		race_option.get_parent().visible = false
+		var resume: String = str(Characters.current.get("zone", ""))
+		if not Net.LEVELS.has(resume):
+			resume = level_paths[0]
+		level_paths = [resume] + level_paths
+		level_option.add_item("Reprendre — %s" % Net.LEVELS[resume])
+		for lp in level_paths.slice(1):
+			level_option.add_item(Net.LEVELS[lp])
+		level_option.selected = 0
+		Net.level_path = resume
+	else:
+		for lp in level_paths:
+			level_option.add_item(Net.LEVELS[lp])
+		level_option.selected = maxi(level_paths.find(Net.level_path), 0)
+	level_option.item_selected.connect(func(i: int): Net.level_path = level_paths[i])
+	if "--arena" in OS.get_cmdline_user_args():
+		Net.level_path = "res://scenes/test_arena.tscn"
 	info.text = "Solo : clique sur Lancer." if Net.is_solo else (
 		"Tu héberges — en attente d'un coéquipier sur le LAN. Tu peux aussi lancer seul." if Net.is_host
 		else "Connecté à l'hôte. Choisis ta classe et coche Prêt.")
+	if Characters.has_current():
+		info.text = "Personnage : %s\n%s" % [Characters.summary(Characters.current), info.text]
 	_refresh(Net.players)
 	_send_choice()
+	# Manette : on démarre sur le choix de classe (croix ↓ pour race, Prêt, Lancer) — ou sur Prêt avec un personnage.
+	(ready_check if Characters.has_current() else class_option).grab_focus.call_deferred()
 	_show_host_ip()
 	if Net.is_solo or "--autostart" in OS.get_cmdline_user_args():
 		ready_check.button_pressed = true
@@ -54,6 +83,9 @@ func _autostart() -> void:
 
 
 func _send_choice() -> void:
+	if Characters.has_current():
+		Net.set_my_character(ready_check.button_pressed)
+		return
 	var cid := _class_ids[class_option.selected] if class_option.selected >= 0 else "fighter"
 	var rid := _race_ids[race_option.selected] if race_option.selected >= 0 else "human"
 	Net.set_my_choice(cid, rid, ready_check.button_pressed)
@@ -63,11 +95,12 @@ func _refresh(players: Dictionary) -> void:
 	var lines: Array[String] = []
 	for id in players:
 		var p: Dictionary = players[id]
-		var cls: String = GameData.classes.get(p.class_id, {}).get("name", p.class_id)
+		var job: String = str(p.get("state", {}).get("job", p.class_id))
+		var cls: String = GameData.classes.get(job, {}).get("name", job)
 		var race: String = GameData.races.get(p.race_id, {}).get("name", p.race_id)
 		var tag := " (hôte)" if id == 1 else ""
 		var ready_txt := "[color=#80e080]prêt[/color]" if p.ready else "[color=#e0a060]pas prêt[/color]"
-		lines.append("• %s%s — %s %s — %s" % [p.name, tag, race, cls, ready_txt])
+		lines.append("• %s%s — %s %s niv. %d — %s" % [p.name, tag, race, cls, int(p.get("level", 1)), ready_txt])
 	players_label.text = "\n".join(lines)
 	start_button.disabled = not Net.all_ready()
 

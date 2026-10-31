@@ -1,0 +1,32 @@
+{
+  "name": "Prairie de Brumeval",
+  "type": "field",
+  "size": [120, 100],
+  "seed": 23,
+  "ground": "#6a8f3e",
+  "patch_color": "#7fa44a",
+  "edge_color": "#3a5a2a",
+  "patches": 60,
+  "roads": [{"from": [-58, 0], "to": [-10, 0], "width": 4}, {"from": [-10, 0], "to": [10, -48], "width": 3}],
+  "buildings": [],
+  "props": [
+    {"kind": "tree", "count": 18, "min_height": 4.0, "max_height": 7.0, "color": "#3a7a30"},
+    {"kind": "bush", "count": 25},
+    {"kind": "flowers", "count": 30},
+    {"kind": "rock", "count": 10},
+    {"kind": "fence", "count": 3, "length": 6.0, "area": [-55, -20, -30, 20]}
+  ],
+  "npcs": [],
+  "zone_lines": [
+    {"side": "w", "at": 0, "target": "res://scenes/outdoor_village.tscn", "spawn": "from_prairie", "label": "Brumeval"},
+    {"side": "n", "at": 10, "target": "res://scenes/outdoor_forest.tscn", "spawn": "from_prairie", "label": "Forêt des Loups"}
+  ],
+  "campfires": [],
+  "chests": [{"id": "prairie_chest", "pos": [48, 40]}],
+  "player_spawns": {"default": [-54, 0, 0], "from_village": [-54, 0, 0], "from_forest": [10, 0, -44]},
+  "spawns": [
+    {"monster": "rabbit", "count": 8, "area": [-35, -30, 20, 30], "respawn": 40},
+    {"monster": "giant_bee", "count": 4, "area": [25, -10, 55, 40], "respawn": 60},
+    {"monster": "boar", "count": 3, "area": [-20, -45, 45, -25], "respawn": 90}
+  ]
+}

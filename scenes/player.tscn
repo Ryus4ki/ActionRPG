@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://src/entities/player/player_character.gd" id="1_player"]
 [ext_resource type="Script" path="res://src/entities/components/stat_block.gd" id="2_stats"]
 [ext_resource type="Script" path="res://src/entities/components/health.gd" id="3_health"]
 [ext_resource type="Script" path="res://src/entities/components/spell_book.gd" id="4_spells"]
 [ext_resource type="Script" path="res://src/entities/components/inventory.gd" id="5_inv"]
+[ext_resource type="Script" path="res://src/entities/player/player_combat.gd" id="6_combat"]
+[ext_resource type="Script" path="res://src/entities/components/quest_log.gd" id="7_quests"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.3
@@ -71,6 +73,42 @@ properties/17/replication_mode = 2
 properties/18/path = NodePath("Inventory:equipped")
 properties/18/spawn = true
 properties/18/replication_mode = 2
+properties/19/path = NodePath("Combat:target_path")
+properties/19/spawn = true
+properties/19/replication_mode = 2
+properties/20/path = NodePath("Combat:engaged")
+properties/20/spawn = true
+properties/20/replication_mode = 2
+properties/21/path = NodePath("Combat:tp")
+properties/21/spawn = true
+properties/21/replication_mode = 2
+properties/22/path = NodePath("Combat:casting_id")
+properties/22/spawn = true
+properties/22/replication_mode = 2
+properties/23/path = NodePath("Combat:cast_left")
+properties/23/spawn = true
+properties/23/replication_mode = 2
+properties/24/path = NodePath("Combat:cast_total")
+properties/24/spawn = true
+properties/24/replication_mode = 2
+properties/25/path = NodePath("Combat:fleeing")
+properties/25/spawn = true
+properties/25/replication_mode = 2
+properties/26/path = NodePath("Combat:cooldowns_left")
+properties/26/spawn = true
+properties/26/replication_mode = 2
+properties/27/path = NodePath("Combat:instant_cast_ready")
+properties/27/spawn = true
+properties/27/replication_mode = 2
+properties/28/path = NodePath("QuestLog:quests")
+properties/28/spawn = true
+properties/28/replication_mode = 2
+properties/29/path = NodePath(".:class_id")
+properties/29/spawn = true
+properties/29/replication_mode = 2
+properties/30/path = NodePath(".:jobs")
+properties/30/spawn = true
+properties/30/replication_mode = 2
 
 [node name="Player" type="CharacterBody3D"]
 collision_layer = 2
@@ -94,6 +132,12 @@ script = ExtResource("4_spells")
 
 [node name="Inventory" type="Node" parent="."]
 script = ExtResource("5_inv")
+
+[node name="Combat" type="Node" parent="."]
+script = ExtResource("6_combat")
+
+[node name="QuestLog" type="Node" parent="."]
+script = ExtResource("7_quests")
 
 [node name="CameraPivot" type="Node3D" parent="."]
 top_level = true

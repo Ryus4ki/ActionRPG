@@ -46,7 +46,7 @@ static func projectile_count(spell: Dictionary, slot_level: int) -> int:
 
 ## Lance le sort sélectionné. `aim_origin` / `aim_dir` : rayon de visée (yeux du joueur, direction caméra).
 ## Renvoie vrai si le sort est parti (emplacement consommé).
-static func cast(caster: PlayerCharacter, spell_id: String, aim_origin: Vector3, aim_dir: Vector3) -> bool:
+static func cast(caster: PlayerCharacter, spell_id: String, aim_origin: Vector3, aim_dir: Vector3, target: Node3D = null) -> bool:
 	var book: SpellBook = caster.spell_book
 	var spell := GameData.spell(spell_id)
 	if spell.is_empty() or not book.can_cast(spell_id):
@@ -69,7 +69,7 @@ static func cast(caster: PlayerCharacter, spell_id: String, aim_origin: Vector3,
 				})
 		"homing_multi":
 			var n := projectile_count(spell, slot_level)
-			var targets := _enemies_in_front(caster, spell.get("range", 36.0), 0.3)
+			var targets: Array = [target] if (target and is_instance_valid(target)) else _enemies_in_front(caster, spell.get("range", 36.0), 0.3)
 			if targets.is_empty():
 				_refund(book, spell_id, slot_level)
 				return false
@@ -93,6 +93,8 @@ static func cast(caster: PlayerCharacter, spell_id: String, aim_origin: Vector3,
 				pass  # le sort est consommé même sans cible (comme en D&D)
 		"ground_aoe":
 			var target_point := _ground_target(caster, aim_origin, aim_dir, spell.get("range", 45.0))
+			if target and is_instance_valid(target):
+				target_point = target.global_position
 			game.spawn_projectile({
 				"caster": caster.get_path(), "spell_id": spell_id, "slot_level": slot_level,
 				"origin": aim_origin + aim_dir * 0.6, "direction": (target_point - aim_origin).normalized(),
@@ -127,6 +129,7 @@ static func projectile_hit(caster: Node, target: Creature, spell_id: String, slo
 				"name": spell.get("name", spell_id), "damage": dice,
 				"damage_type": spell.get("damage_type", "force"),
 				"bonus": caster.stats.spell_attack_bonus(caster.spell_book.casting_ability),
+				"damage_multiplier": GameData.bal("spell_damage_mult"),
 			})
 		"auto_hit":
 			CombatResolver.direct_damage(caster, target, dice, spell.get("damage_type", "force"), spell.get("name", spell_id))
